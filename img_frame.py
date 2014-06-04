@@ -316,8 +316,10 @@ class imgAssociation(wx.Dialog):
         self.datastreamList = datastreamList
         self.wxMinDatetime_at = min_date
         self.wxMaxDatetime_at = max_date
-        self.dateFrom.SetValue(min_date)
-        self.dateTo.SetValue(max_date)        
+        if min_date:
+			self.dateFrom.SetValue(min_date)
+        if max_date:
+			self.dateTo.SetValue(max_date)        
         self.available_datastreamList = available_datastreamList
         self.setAvailableDatastreams()
         self.setDatastreamsPicutes()

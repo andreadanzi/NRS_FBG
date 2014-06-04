@@ -70,11 +70,12 @@ class GibeToNrs():
             ds_prefix_no = ds_prefix_no+1
             isensor = 1
           prefix = ds_prefix % ds_prefix_no
-          if sample==1:
+          sId = "%s-%d" % (prefix,isensor)
+          if sId not in datastream_uids:
             nrs_datastream_id = self.check_datastream_uid(self.nrs_environment_id,nrs_node_id, fcurrent_value, isensor , prefix , node_uid)
-            datastream_uids[icol]=nrs_datastream_id
+            datastream_uids[sId]=nrs_datastream_id
           else:
-            nrs_datastream_id = datastream_uids[icol]
+            nrs_datastream_id = datastream_uids[sId]
           bulk_insert_row.append((self.nrs_environment_id, nrs_node_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
           i=i+1
           isensor = isensor + 1
@@ -192,11 +193,12 @@ class GibeToNrs():
                     ds_prefix_no = ds_prefix_no+1
                     isensor = 1
                   prefix = ds_prefix % ds_prefix_no
-                  if sample==1:
+                  sId = "%s-%d" % (prefix,isensor)
+                  if sId not in datastream_uids:
                     nrs_datastream_id = self.check_datastream_uid(self.nrs_environment_id,nrs_node_id, fcurrent_value, isensor , prefix , node_uid)
-                    datastream_uids[icol]=nrs_datastream_id
+                    datastream_uids[sId]=nrs_datastream_id
                   else:
-                    nrs_datastream_id = datastream_uids[icol]
+                    nrs_datastream_id = datastream_uids[sId]
                   bulk_insert_row.append((self.nrs_environment_id, nrs_node_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
                   i=i+1
                   isensor = isensor + 1

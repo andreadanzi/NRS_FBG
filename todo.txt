@@ -1,0 +1,10 @@
+merge dei database (web con questo) , considerare che qui ho anche la tabella sws_import etc etc e cghe forse bisogna prevedere trasformazioni differenti per centralina e che in nrs_datastream e poi nuova colonna factor_value_2
+
+alter table
+nrs_datastream
+add column 
+  factor_value_2 decimal(10,6) NOT NULL DEFAULT '0.000000'
+  
+  
+Gestire i file immagine, invece che su C:\ tramite file di configurazione
+Permettere di asssegnare sui file datastream di centraline diverse...perchè quelle verticali non dipendono dal deployment

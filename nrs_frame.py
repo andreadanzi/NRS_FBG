@@ -155,7 +155,7 @@ class Frame1(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_FRAME1, name='', parent=prnt,
-              pos=wx.Point(200, 131), size=wx.Size(990, 541),
+              pos=wx.Point(336, 129), size=wx.Size(990, 541),
               style=wx.DEFAULT_FRAME_STYLE, title=u'Import FBG')
         self._init_utils()
         self.SetClientSize(wx.Size(974, 503))
@@ -665,7 +665,7 @@ class Frame1(wx.Frame):
 
         self.staticBox5 = wx.StaticBox(id=wxID_FRAME1STATICBOX5,
               label=u'Centralina', name='staticBox5', parent=self.pnlCentralina,
-              pos=wx.Point(3, 0), size=wx.Size(186, 496), style=0)
+              pos=wx.Point(-5, 0), size=wx.Size(186, 496), style=0)
 
         self.txtIP = wx.TextCtrl(id=wxID_FRAME1TXTIP, name=u'txtIP',
               parent=self.pnlCentralina, pos=wx.Point(10, 24), size=wx.Size(94,
@@ -763,7 +763,7 @@ class Frame1(wx.Frame):
               id=wxID_FRAME1BTNSAVEPERI_SAM)
 
         self.btnACQUSTART = wx.Button(id=wxID_FRAME1BTNACQUSTART,
-              label=u'Avvia Schedulazione', name=u'btnACQUSTART',
+              label=u'Avvia Sched.', name=u'btnACQUSTART',
               parent=self.pnlCentralina, pos=wx.Point(10, 179),
               size=wx.Size(168, 23), style=0)
         self.btnACQUSTART.Enable(False)
@@ -831,7 +831,7 @@ class Frame1(wx.Frame):
         self.LoadEnvDirs()
         sEnvCode = self.textCtrlCantiere.GetValue()
         sNodeCode = self.txtCtrlCentralina.GetValue()
-        filetstamp = time.strftime('%Y%m%d%H%M')
+        filetstamp = time.strftime('%Y%m%d%H%M%S')
         shutil.copy(sMeasureFile,os.path.join( self.NodeDir, sEnvCode+"_"+sNodeCode+"_"+filetstamp+".csv"))
         settings.gibeimportfolder_path = self.EnvDir
         self.logfilepath = os.path.join(self.EnvDir , settings.gibelogfile_name)
@@ -1095,8 +1095,9 @@ class Frame1(wx.Frame):
         db_cur = db_conn.cursor()
         sQuery = """
             SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at)
-            FROM nrs_datastream, nrs_datapoint
-            WHERE nrs_datastream.nrs_node_id = %d AND  nrs_datapoint.nrs_datastream_id = nrs_datastream.id
+            FROM nrs_datastream 
+			LEFT JOIN nrs_datapoint ON nrs_datapoint.nrs_datastream_id = nrs_datastream.id
+            WHERE nrs_datastream.nrs_node_id = %d 
             GROUP BY title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title
             ORDER BY title ASC
         """ % node_id
@@ -1125,12 +1126,14 @@ class Frame1(wx.Frame):
                 if row[6] < dsData['min_date']:
                     dsData['min_date'] = row[6] 
             x=x+1
-        max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
-        min_date=datetime.strptime(dsData['min_date'],'%Y%m%d%H%M%S%f')
-        wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)
-        wxmindate = wx.DateTimeFromDMY(min_date.day, min_date.month - 1, min_date.year, 0, 0, 0)
-        self.dtFrom.SetValue(wxmindate)        
-        self.dtTo.SetValue(wxmaxdate)
+        if dsData['max_date'] != None:
+			max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
+			wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)        
+			self.dtTo.SetValue(wxmaxdate)
+        if dsData['min_date'] != None:
+			min_date=datetime.strptime(dsData['min_date'],'%Y%m%d%H%M%S%f')
+			wxmindate = wx.DateTimeFromDMY(min_date.day, min_date.month - 1, min_date.year, 0, 0, 0)
+			self.dtFrom.SetValue(wxmindate)
         db_conn.close()
 
     def LoadDistinctDatastreamUpdated2(self, node_id, from_date=None, to_date=None):
@@ -1366,9 +1369,9 @@ class Frame1(wx.Frame):
         db_cur = db_conn.cursor()
         sQuery = """
             SELECT nrs_datastream.id, title, datastream_uid, nrs_datastream.updated, factor_value, lambda_value, constant_value, factor_title, max( nrs_datapoint.datetime_at) as max_date,  min( nrs_datapoint.datetime_at) as min_date
-            FROM nrs_datastream, nrs_datapoint
+            FROM nrs_datastream 
+			LEFT JOIN nrs_datapoint ON nrs_datastream.id = nrs_datapoint.nrs_datastream_id
             WHERE 
-            nrs_datastream.id=nrs_datapoint.nrs_datastream_id AND
             nrs_datastream.id = %d
             GROUP BY nrs_datastream.id, title, datastream_uid, nrs_datastream.updated, factor_value, lambda_value, constant_value, factor_title
         """ % id
@@ -1611,13 +1614,15 @@ class Frame1(wx.Frame):
         self.txtLambda.Clear()
         self.txtLambda.SetValue(u'%f' % dsData['lambda'])
         self.txtDen.Clear()
-        self.txtDen.SetValue(u'%f' % dsData['den'])        
-        max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
-        min_date=datetime.strptime(dsData['min_date'],'%Y%m%d%H%M%S%f')
-        wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)
-        wxmindate = wx.DateTimeFromDMY(min_date.day, min_date.month - 1, min_date.year, 0, 0, 0)
-        self.dtFrom.SetValue(wxmindate)        
-        self.dtTo.SetValue(wxmaxdate)
+        self.txtDen.SetValue(u'%f' % dsData['den'])
+        if dsData['max_date']!= None:
+			max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
+			wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)     
+			self.dtTo.SetValue(wxmaxdate)
+        if dsData['min_date']!= None:
+			min_date=datetime.strptime(dsData['min_date'],'%Y%m%d%H%M%S%f')
+			wxmindate = wx.DateTimeFromDMY(min_date.day, min_date.month - 1, min_date.year, 0, 0, 0)
+			self.dtFrom.SetValue(wxmindate)   
         #self.LoadDatapoint(self.selected_entity_id)
         #self.txtDatastreamDatapoint.SetValue(self.txtDsCode.GetValue())
         event.Skip()
@@ -2218,7 +2223,7 @@ class Frame1(wx.Frame):
         if bValidate:
             self.scpi = SCPICli(sIP,int(sPort1), int(sPort2))
             res = self.scpi.getIDEN()
-            if res == 'OK':
+            if res != None:
                 self.txtIDEN.SetValue(res)
                 res=self.scpi.getSTAT()
                 self.txtStatus.SetValue(res)
@@ -2242,8 +2247,10 @@ class Frame1(wx.Frame):
                     self.listDirs()
                 if self.scpi.status == 2:
                     self.txtStatus.SetBackgroundColour(wx.Colour(255, 0, 255));
+                    self.btnACQUSTOP.Enabled = True
                 if self.scpi.status == 3:
                     self.txtStatus.SetBackgroundColour(wx.Colour(255, 255, 0));
+                    self.btnACQUSTOP.Enabled = True
                 if self.scpi.status == 4:
                     self.txtStatus.SetBackgroundColour(wx.Colour(0, 255, 255));
                     self.btnACQUSTOP.Enabled = True
@@ -2309,8 +2316,7 @@ class Frame1(wx.Frame):
                 self.txtPERIH.Enabled = False
                 self.txtPERIM.Enabled = False
                 self.txtPERIS.Enabled = False
-                self.txtSAMP.Enabled = False     
-                self.btnACQUSTOP.Enabled = False
+                self.txtSAMP.Enabled = False   
                 self.btnACQUSTART.Enabled = False
                 self.lstDir.Enabled = False   
                 self.btnCanellaTutto.Enabled = False
@@ -2337,7 +2343,6 @@ class Frame1(wx.Frame):
             self.txtPERIM.Enabled = False
             self.txtPERIS.Enabled = False
             self.txtSAMP.Enabled = False     
-            self.btnACQUSTOP.Enabled = False
             self.btnACQUSTART.Enabled = False
             self.lstDir.Enabled = False   
             self.btnCanellaTutto.Enabled = False
@@ -2390,26 +2395,37 @@ class Frame1(wx.Frame):
         event.Skip()
 
     def OnBtnImportSCHEButton(self, event):
-        mycur = self.GetCursor();
-        self.SetCursor(self.stockCursor1)
-        retItems = self.getDataFromDevice()
-        gibe2nrs = GibeToNrs(self.e_uid,self.txtCtrlCentralina.GetValue(),self.NodeDir,self.logger)
-        gibe2nrs.run_itemlist(retItems)
-        self.SetCursor(mycur)
-        event.Skip()
+        if self.tryDBConnect():
+            mycur = self.GetCursor();
+            self.SetCursor(self.stockCursor1)
+            retItems = self.getDataFromDevice()
+            if len(retItems) > 0:
+                gibe2nrs = GibeToNrs(self.e_uid,self.txtCtrlCentralina.GetValue(),self.NodeDir,self.logger)
+                gibe2nrs.run_itemlist(retItems)
+            else:
+                self.Info("Non ci sono dati da esportare")
+            self.SetCursor(mycur)
+            self.CheckDB()
+            self.Info("Operazione completata, %d campioni importati!" % len(retItems), "Import Data")
+            event.Skip()
 
     def OnBtnExportFileButton(self, event):
         mycur = self.GetCursor();
         self.SetCursor(self.stockCursor1)
         #retItems = ['1\tadad\tkjlkj\tkjkljh','2\tadad\tkjlkj\tkjkljh','3\tadad\tkjlkj\tkjkljh',]
         retItems = self.getDataFromDevice()
-        csv_file = time.strftime('%Y%m%d%H%M%S')
-        sFileName = "scpi_" + csv_file + ".csv"
-        sFilePath = self.NodeDir+"/tmp/" + sFileName
-        #with open(sFilePath, 'wb') as importcsvfile:
-        #    importcsvfile.writelines(retItems)
-        self.saveAs(self.NodeDir,sFileName,retItems)
-        self.SetCursor(mycur)
+        if len(retItems) > 0:
+            csv_file = time.strftime('%Y%m%d%H%M%S')
+            sFileName = "scpi_" + csv_file + ".csv"
+            sFilePath = self.NodeDir+"/tmp/" + sFileName
+            #with open(sFilePath, 'wb') as importcsvfile:
+            #    importcsvfile.writelines(retItems)
+            self.saveAs(self.NodeDir,sFileName,retItems)
+            self.SetCursor(mycur)
+            self.Info("Operazione completata, %d campioni esporati su file!" % len(retItems), "Export data to file")
+        else:
+            self.SetCursor(mycur)
+            self.Info("Non ci sono dati da esportare")
         event.Skip()
     
     def saveAs(self,dirName,fileName,retItems):
@@ -2456,3 +2472,20 @@ class Frame1(wx.Frame):
                     retItems = retItems + items
                     selection.append(itemText)        
         return retItems
+    
+    def tryDBConnect(self):
+        s_database_file = self.databaseBrowseButton.GetValue()
+        if len(s_database_file) == 0:
+            self.Info('Percorso del DATABASE non valido','DB non corretto')
+            return False
+        settings.database = s_database_file
+        try:
+            db_conn = sqlite3.connect(settings.database)
+            db_cur = db_conn.cursor()
+            db_conn.close()
+            return True 
+        except Exception, e:
+            self.Info('something\'s wrong with %s:%d. Exception type is %s' % (self.host, self.port, `e`),'DB non corretto')
+            return False
+
+        

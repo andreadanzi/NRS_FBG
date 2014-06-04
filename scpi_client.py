@@ -83,6 +83,20 @@ class SCPICli():
             return retMsg
         except socket.timeout:
             return retMsg
+        
+    def recv2readDataMax(self,maxLen=1000):
+        retMsg = ''
+        try:
+            data = self.socket2read.recv(1024)
+            retMsg = data
+            while len(data) > 0:
+              data = self.socket2read.recv(1024)
+              retMsg = retMsg + data
+              if len(retMsg) > maxLen:
+                  break
+            return retMsg
+        except socket.timeout:
+            return retMsg
     
     def getIDEN(self):
         returnVal = None
@@ -109,25 +123,56 @@ class SCPICli():
             ret = 'OK'
         return ret
     
-    def parseDATA(self,retData):
+    def parseWAVE(self,retData):
+        ret=[]
+        if len(retData) > 4 and self.ACK in retData[4:]:
+            ret = retData[9:].split(',')
+        elif len(retData) > 4 and self.NACK in retData[4:]:
+            error = retData[10:]                
+        elif len(retData) > 4 and self.ACK_OK in retData[4:]:
+            ret = []
+        return ret
+    
+    def parseDATA(self,retData,maxLen=0):
         ret = []
         retVal = self.parseACK(retData)
         if retVal == 'OK':
-            retData = self.recv2readData()
+            if maxLen==0:
+                retData = self.recv2readData()
+            else:
+                retData = self.recv2readDataMax(maxLen)
             if retData == None:
                 ret = []
             else:
-                if len(retData) > 4 and self.S_000SEMICOLON in retData[4:]:
-                    items = retData[4:].split(self.S_000SEMICOLON)
-                    for item in items:
-                        cols = item.split(":")
-                        datearray = cols[0].split('.')
-                        sDate = "%s/%s/%s" % (datearray[2],datearray[1],datearray[0])
-                        timearray = cols[1].split('.')
-                        sTime = "%s:%s:%s" % (timearray[0],timearray[1],timearray[2])
-                        sValues = cols[2].replace(',','\t')
-                        sValues = sValues.replace('.',',')
-                        ret.append("%s\t%s\t%s" % (sDate,sTime,sValues) )
+                if len(retData) > 4 and self.S_000 in retData[4:]:
+                    read = 0
+                    while read < len(retData):
+                        length = int(retData[read:read+4].encode('hex'), 16)
+                        item = retData[read+4:length+read+4]
+                        read = read + length + 4
+                        if item:
+                            cols = item.split(":",2)
+                            datearray = cols[0].split('.')
+                            sDate = "%s/%s/%s" % (datearray[2],datearray[1],datearray[0])
+                            timearray = cols[1].split('.')
+                            sTime = "%s:%s:%s" % (timearray[0],timearray[1],timearray[2])
+                            ss = cols[2].split(':')
+                            sValues = ''
+                            for si in ss:
+                                if len(si) > 0:
+                                    if sValues == '':
+                                        sValues = si
+                                    else:
+                                        sValues = sValues + ',' + si
+                                #else:
+                                #    if sValues == '':
+                                #        sValues = "0.0"
+                                #    else:
+                                #        sValues = sValues + ',' +"0.0"
+                            if len(sValues) > 0:
+                                sValues = sValues.replace(',','\t')
+                                sValues = sValues.replace('.',',')
+                                ret.append("%s\t%s\t%s\n" % (sDate,sTime,sValues) )
                 else:
                     ret = []
         return ret
@@ -316,6 +361,23 @@ class SCPICli():
             self.close()
         return returnVal  
   
+    #:ACQU:WAVE:CONT:STAR 
+    def startCONT(self):
+        returnVal = []
+        if self.connect():
+            iRet = self.sendCmd(":ACQU:WAVE:CONT:STAR")
+            retData = None
+            if iRet > 0:
+                retData = self.recvData()
+            if retData == None:
+                returnVal = []
+            else:
+                 if self.connect2read():
+                    returnVal = self.parseDATA(retData,1000)
+                    self.close2read()
+            self.close()
+        return returnVal
+  
     #:ACQU:SCHE:STAR
     def startSCHEDULE(self):
         returnVal = ""
@@ -346,6 +408,38 @@ class SCPICli():
                 returnVal = self.parseACK(retData)  
             self.close()
         return returnVal
+    
+    
+    #:RECA
+    def reca(self):
+        returnVal = ""
+        if self.connect():
+            iRet = self.sendCmd(":RECA")
+            retData = None
+            if iRet > 0:
+                retData = self.recvData()
+            if retData == None:
+                returnVal = ""
+            else:
+                returnVal = self.parseACK(retData)  
+            self.close()
+        return returnVal
+    
+    #:ACQU:WAVE:CHAN:1? 
+    def getWAVE(self, sChan):
+        returnVal = []
+        if self.connect():
+            iRet = self.sendCmd(":ACQU:WAVE:CHAN:%s?" % sChan)
+            retData = None
+            if iRet > 0:
+                retData = self.recvData()
+            if retData == None:
+                returnVal = []
+            else:
+                returnVal = self.parseWAVE(retData)
+            self.close()
+        return returnVal
+
 
     #:ACQU:STOP
     def stopACQU(self):
@@ -366,21 +460,21 @@ class SCPICli():
     def getDATA(self, sYYYYMMDD):
         returnVal = []
         if self.connect():
-            if self.connect2read():
-                iRet = self.sendCmd(":MEMO:RECA:DATA:%s?" % sYYYYMMDD)
-                retData = None
-                if iRet > 0:
-                    retData = self.recvData()
-                if retData == None:
-                    returnVal = []
-                else:
+            iRet = self.sendCmd(":MEMO:RECA:DATA:%s?" % sYYYYMMDD)
+            retData = None
+            if iRet > 0:
+                retData = self.recvData()
+            if retData == None:
+                returnVal = []
+            else:
+                if self.connect2read():
                     returnVal = self.parseDATA(retData)
-                self.close2read()
+                    self.close2read()
             self.close()
         return returnVal
     
 if __name__ == '__main__':
-    dev = SCPICli("192.107.91.75",3500)
+    dev = SCPICli("192.107.91.76",3500)
     res=dev.getIDEN()
     res=dev.getIDEN()
     res=dev.getSTAT()
