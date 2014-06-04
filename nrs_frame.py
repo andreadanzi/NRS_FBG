@@ -22,10 +22,11 @@ def create(parent):
 [wxID_FRAME1, wxID_FRAME1BTNACQUSTART, wxID_FRAME1BTNACQUSTOP, 
  wxID_FRAME1BTNCANELLATUTTO, wxID_FRAME1BTNCLOSE, wxID_FRAME1BTNDELETEADMIN, 
  wxID_FRAME1BTNEXPORT, wxID_FRAME1BTNEXPORTFILE, wxID_FRAME1BTNIMPORTA, 
- wxID_FRAME1BTNIMPORTSCHE, wxID_FRAME1BTNLISTA, wxID_FRAME1BTNSAVEPERI_SAM, 
- wxID_FRAME1BTNTEST, wxID_FRAME1BUTTONDELETE, wxID_FRAME1BUTTONSAVE, 
- wxID_FRAME1CHECKBOX1, wxID_FRAME1CHECKBOX2, wxID_FRAME1CHKDATAFILTER, 
- wxID_FRAME1CHKFORMAT, wxID_FRAME1DATABASEBROWSEBUTTON, wxID_FRAME1DATEFROM, 
+ wxID_FRAME1BTNIMPORTSCHE, wxID_FRAME1BTNIPAD, wxID_FRAME1BTNLISTA, 
+ wxID_FRAME1BTNSAVEPERI_SAM, wxID_FRAME1BTNTEST, wxID_FRAME1BUTTONDELETE, 
+ wxID_FRAME1BUTTONSAVE, wxID_FRAME1CHECKBOX1, wxID_FRAME1CHECKBOX2, 
+ wxID_FRAME1CHKDATAFILTER, wxID_FRAME1CHKFORMAT, 
+ wxID_FRAME1DATABASEBROWSEBUTTON, wxID_FRAME1DATEFROM, 
  wxID_FRAME1DATEPICKERCTRL1, wxID_FRAME1DATEPICKERCTRL2, wxID_FRAME1DATETO, 
  wxID_FRAME1DTFROM, wxID_FRAME1DTTO, wxID_FRAME1ENVNOME, 
  wxID_FRAME1FILEBROWSEBUTTON1, wxID_FRAME1IMGCHART, wxID_FRAME1IMGMAP, 
@@ -35,28 +36,33 @@ def create(parent):
  wxID_FRAME1MEASUREFILEBROWSEBUTTON, wxID_FRAME1NOTEBOOK1, wxID_FRAME1PANEL1, 
  wxID_FRAME1PANEL2, wxID_FRAME1PANEL3, wxID_FRAME1PANELDATAPOINT, 
  wxID_FRAME1PANELDATASTREAM, wxID_FRAME1PANELENV, wxID_FRAME1PANELNODE, 
- wxID_FRAME1PNLCENTRALINA, wxID_FRAME1PNLTEMPDIR, wxID_FRAME1RBTCOMMA, 
- wxID_FRAME1RBTPOINT, wxID_FRAME1STATICBOX1, wxID_FRAME1STATICBOX2, 
- wxID_FRAME1STATICBOX3, wxID_FRAME1STATICBOX4, wxID_FRAME1STATICBOX5, 
- wxID_FRAME1STATICTEXT1, wxID_FRAME1STATICTEXT10, wxID_FRAME1STATICTEXT11, 
- wxID_FRAME1STATICTEXT12, wxID_FRAME1STATICTEXT13, wxID_FRAME1STATICTEXT14, 
- wxID_FRAME1STATICTEXT15, wxID_FRAME1STATICTEXT16, wxID_FRAME1STATICTEXT17, 
- wxID_FRAME1STATICTEXT18, wxID_FRAME1STATICTEXT19, wxID_FRAME1STATICTEXT2, 
- wxID_FRAME1STATICTEXT20, wxID_FRAME1STATICTEXT21, wxID_FRAME1STATICTEXT3, 
- wxID_FRAME1STATICTEXT4, wxID_FRAME1STATICTEXT5, wxID_FRAME1STATICTEXT6, 
- wxID_FRAME1STATICTEXT7, wxID_FRAME1STATICTEXT8, wxID_FRAME1STATICTEXT9, 
- wxID_FRAME1STATICTEXTMESSAGE, wxID_FRAME1TEXTCTRLCANTIERE, wxID_FRAME1TXTAVG, 
+ wxID_FRAME1PARAMETRI, wxID_FRAME1PNLCENTRALINA, wxID_FRAME1PNLSCPICONF, 
+ wxID_FRAME1PNLTEMPDIR, wxID_FRAME1RBTCOMMA, wxID_FRAME1RBTPOINT, 
+ wxID_FRAME1STATICBOX1, wxID_FRAME1STATICBOX2, wxID_FRAME1STATICBOX4, 
+ wxID_FRAME1STATICBOX5, wxID_FRAME1STATICTEXT1, wxID_FRAME1STATICTEXT10, 
+ wxID_FRAME1STATICTEXT11, wxID_FRAME1STATICTEXT12, wxID_FRAME1STATICTEXT13, 
+ wxID_FRAME1STATICTEXT14, wxID_FRAME1STATICTEXT15, wxID_FRAME1STATICTEXT16, 
+ wxID_FRAME1STATICTEXT17, wxID_FRAME1STATICTEXT18, wxID_FRAME1STATICTEXT19, 
+ wxID_FRAME1STATICTEXT2, wxID_FRAME1STATICTEXT20, wxID_FRAME1STATICTEXT21, 
+ wxID_FRAME1STATICTEXT22, wxID_FRAME1STATICTEXT23, wxID_FRAME1STATICTEXT24, 
+ wxID_FRAME1STATICTEXT25, wxID_FRAME1STATICTEXT3, wxID_FRAME1STATICTEXT4, 
+ wxID_FRAME1STATICTEXT5, wxID_FRAME1STATICTEXT6, wxID_FRAME1STATICTEXT7, 
+ wxID_FRAME1STATICTEXT8, wxID_FRAME1STATICTEXT9, wxID_FRAME1STATICTEXTMESSAGE, 
+ wxID_FRAME1TEXTCTRLCANTIERE, wxID_FRAME1TXTAVG, wxID_FRAME1TXTCONFHH, 
+ wxID_FRAME1TXTCONFMM, wxID_FRAME1TXTCONFSAMPLES, wxID_FRAME1TXTCONFSS, 
  wxID_FRAME1TXTCONST, wxID_FRAME1TXTCTRLCENTRALINA, wxID_FRAME1TXTDEN, 
  wxID_FRAME1TXTDSCODE, wxID_FRAME1TXTDSLEN, wxID_FRAME1TXTDSTITLE, 
  wxID_FRAME1TXTENVCOD, wxID_FRAME1TXTENVLOCATION, wxID_FRAME1TXTENVNODE, 
- wxID_FRAME1TXTENVTITLE, wxID_FRAME1TXTHH, wxID_FRAME1TXTHHFROM, 
- wxID_FRAME1TXTIDEN, wxID_FRAME1TXTIP, wxID_FRAME1TXTLAMBDA, 
- wxID_FRAME1TXTMMFROM, wxID_FRAME1TXTMMTO, wxID_FRAME1TXTNODECODE, 
- wxID_FRAME1TXTNODEDATASTREAM, wxID_FRAME1TXTNODENAME, wxID_FRAME1TXTPERIH, 
- wxID_FRAME1TXTPERIM, wxID_FRAME1TXTPERIS, wxID_FRAME1TXTPORT1, 
- wxID_FRAME1TXTPORT2, wxID_FRAME1TXTSAMP, wxID_FRAME1TXTSSFROM, 
- wxID_FRAME1TXTSSTO, wxID_FRAME1TXTSTATUS, wxID_FRAME1WORKINGDIRBROWSEBUTTON, 
-] = [wx.NewId() for _init_ctrls in range(109)]
+ wxID_FRAME1TXTENVTITLE, wxID_FRAME1TXTFORMULA, wxID_FRAME1TXTHH, 
+ wxID_FRAME1TXTHHFROM, wxID_FRAME1TXTIDEN, wxID_FRAME1TXTIP, 
+ wxID_FRAME1TXTLAMBDA, wxID_FRAME1TXTMMFROM, wxID_FRAME1TXTMMTO, 
+ wxID_FRAME1TXTNODECODE, wxID_FRAME1TXTNODEDATASTREAM, wxID_FRAME1TXTNODEIP, 
+ wxID_FRAME1TXTNODENAME, wxID_FRAME1TXTPERIH, wxID_FRAME1TXTPERIM, 
+ wxID_FRAME1TXTPERIS, wxID_FRAME1TXTPORT1, wxID_FRAME1TXTPORT2, 
+ wxID_FRAME1TXTPORTINPUT, wxID_FRAME1TXTPORTOUTPUT, wxID_FRAME1TXTSAMP, 
+ wxID_FRAME1TXTSECOND, wxID_FRAME1TXTSSFROM, wxID_FRAME1TXTSSTO, 
+ wxID_FRAME1TXTSTATUS, wxID_FRAME1WORKINGDIRBROWSEBUTTON, 
+] = [wx.NewId() for _init_ctrls in range(124)]
 
 class Frame1(wx.Frame):
 
@@ -103,11 +109,11 @@ class Frame1(wx.Frame):
     def _init_coll_notebook1_Pages(self, parent):
         # generated method, don't edit
 
-        parent.AddPage(imageId=0, page=self.panelEnv, select=True,
+        parent.AddPage(imageId=0, page=self.panelEnv, select=False,
               text=u'Environment')
         parent.AddPage(imageId=1, page=self.panelNode, select=False,
               text=u'Node')
-        parent.AddPage(imageId=2, page=self.panelDatastream, select=False,
+        parent.AddPage(imageId=2, page=self.panelDatastream, select=True,
               text=u'Datastream')
         parent.AddPage(imageId=3, page=self.panelDatapoint, select=False,
               text=u'Datapoint')
@@ -155,7 +161,7 @@ class Frame1(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_FRAME1, name='', parent=prnt,
-              pos=wx.Point(336, 129), size=wx.Size(990, 541),
+              pos=wx.Point(320, 144), size=wx.Size(990, 541),
               style=wx.DEFAULT_FRAME_STYLE, title=u'Import FBG')
         self._init_utils()
         self.SetClientSize(wx.Size(974, 503))
@@ -375,13 +381,8 @@ class Frame1(wx.Frame):
               parent=self.panelDatastream, pos=wx.Point(8, 8), size=wx.Size(58,
               13), style=0)
 
-        self.txtLambda = wx.TextCtrl(id=wxID_FRAME1TXTLAMBDA, name=u'txtLambda',
-              parent=self.panelDatastream, pos=wx.Point(112, 336),
-              size=wx.Size(88, 21), style=0, value=u'')
-        self.txtLambda.SetEditable(True)
-
         self.txtDsCode = wx.TextCtrl(id=wxID_FRAME1TXTDSCODE, name=u'txtDsCode',
-              parent=self.panelDatastream, pos=wx.Point(56, 216),
+              parent=self.panelDatastream, pos=wx.Point(56, 214),
               size=wx.Size(96, 21), style=0, value=u'')
         self.txtDsCode.SetEditable(False)
 
@@ -390,38 +391,67 @@ class Frame1(wx.Frame):
               size=wx.Size(80, 21), style=0, value=u'')
         self.txtDsLen.SetEditable(False)
 
+        self.txtDsTitle = wx.TextCtrl(id=wxID_FRAME1TXTDSTITLE,
+              name=u'txtDsTitle', parent=self.panelDatastream, pos=wx.Point(56,
+              256), size=wx.Size(240, 21), style=0, value=u'')
+        self.txtDsTitle.SetEditable(True)
+
+        self.txtFormula = wx.TextCtrl(id=wxID_FRAME1TXTFORMULA,
+              name=u'txtFormula', parent=self.panelDatastream, pos=wx.Point(88,
+              304), size=wx.Size(200, 21), style=0, value=u'')
+
+        self.txtLambda = wx.TextCtrl(id=wxID_FRAME1TXTLAMBDA, name=u'txtLambda',
+              parent=self.panelDatastream, pos=wx.Point(24, 350),
+              size=wx.Size(80, 21), style=0, value=u'')
+        self.txtLambda.SetEditable(True)
+
+        self.txtConst = wx.TextCtrl(id=wxID_FRAME1TXTCONST, name=u'txtConst',
+              parent=self.panelDatastream, pos=wx.Point(107, 350),
+              size=wx.Size(64, 21), style=0, value=u'')
+        self.txtConst.SetEditable(True)
+
+        self.txtDen = wx.TextCtrl(id=wxID_FRAME1TXTDEN, name=u'txtDen',
+              parent=self.panelDatastream, pos=wx.Point(174, 350),
+              size=wx.Size(64, 21), style=0, value=u'')
+        self.txtDen.SetEditable(True)
+
+        self.txtSecond = wx.TextCtrl(id=wxID_FRAME1TXTSECOND, name=u'txtSecond',
+              parent=self.panelDatastream, pos=wx.Point(242, 350),
+              size=wx.Size(64, 21), style=0, value=u'')
+        self.txtSecond.SetEditable(True)
+
+        self.staticText22 = wx.StaticText(id=wxID_FRAME1STATICTEXT22,
+              label=u'Ordine 2', name='staticText22',
+              parent=self.panelDatastream, pos=wx.Point(248, 334),
+              size=wx.Size(42, 13), style=0)
+
+        self.staticText23 = wx.StaticText(id=wxID_FRAME1STATICTEXT23,
+              label=u'Formula', name='staticText23',
+              parent=self.panelDatastream, pos=wx.Point(32, 307),
+              size=wx.Size(39, 13), style=0)
+
         self.staticText11 = wx.StaticText(id=wxID_FRAME1STATICTEXT11,
               label=u'Nome', name='staticText11', parent=self.panelDatastream,
               pos=wx.Point(16, 256), size=wx.Size(28, 13), style=0)
 
-        self.staticBox3 = wx.StaticBox(id=wxID_FRAME1STATICBOX3,
-              label=u'Parametri', name='staticBox3',
-              parent=self.panelDatastream, pos=wx.Point(16, 288),
-              size=wx.Size(304, 80), style=0)
-
-        self.txtConst = wx.TextCtrl(id=wxID_FRAME1TXTCONST, name=u'txtConst',
-              parent=self.panelDatastream, pos=wx.Point(32, 336),
-              size=wx.Size(72, 21), style=0, value=u'')
-        self.txtConst.SetEditable(True)
-
-        self.txtDen = wx.TextCtrl(id=wxID_FRAME1TXTDEN, name=u'txtDen',
-              parent=self.panelDatastream, pos=wx.Point(208, 336),
-              size=wx.Size(88, 21), style=0, value=u'')
-        self.txtDen.SetEditable(True)
+        self.Parametri = wx.StaticBox(id=wxID_FRAME1PARAMETRI,
+              label=u'Parametri', name=u'Parametri',
+              parent=self.panelDatastream, pos=wx.Point(16, 280),
+              size=wx.Size(304, 96), style=0)
 
         self.staticText9 = wx.StaticText(id=wxID_FRAME1STATICTEXT9,
-              label=u'Costante', name='staticText9',
-              parent=self.panelDatastream, pos=wx.Point(32, 320),
-              size=wx.Size(45, 13), style=0)
+              label=u'Ordine 0', name='staticText9',
+              parent=self.panelDatastream, pos=wx.Point(120, 334),
+              size=wx.Size(42, 13), style=0)
 
         self.staticText10 = wx.StaticText(id=wxID_FRAME1STATICTEXT10,
-              label=u'Lambda', name='staticText10', parent=self.panelDatastream,
-              pos=wx.Point(112, 320), size=wx.Size(38, 13), style=0)
+              label=u'CWL', name='staticText10', parent=self.panelDatastream,
+              pos=wx.Point(40, 334), size=wx.Size(23, 13), style=0)
 
         self.staticText12 = wx.StaticText(id=wxID_FRAME1STATICTEXT12,
-              label=u'Denominatore', name='staticText12',
-              parent=self.panelDatastream, pos=wx.Point(208, 320),
-              size=wx.Size(68, 13), style=0)
+              label=u'Ordine 1', name='staticText12',
+              parent=self.panelDatastream, pos=wx.Point(184, 334),
+              size=wx.Size(42, 13), style=0)
 
         self.staticText13 = wx.StaticText(id=wxID_FRAME1STATICTEXT13,
               label=u'Lunghezza', name='staticText13',
@@ -454,11 +484,6 @@ class Frame1(wx.Frame):
               label=u'Valore Medio', name='staticText14',
               parent=self.panelDatapoint, pos=wx.Point(12, 200),
               size=wx.Size(62, 13), style=0)
-
-        self.txtDsTitle = wx.TextCtrl(id=wxID_FRAME1TXTDSTITLE,
-              name=u'txtDsTitle', parent=self.panelDatastream, pos=wx.Point(56,
-              256), size=wx.Size(240, 21), style=0, value=u'')
-        self.txtDsTitle.SetEditable(True)
 
         self.staticText15 = wx.StaticText(id=wxID_FRAME1STATICTEXT15,
               label=u'Codice', name='staticText15', parent=self.panelDatastream,
@@ -668,15 +693,15 @@ class Frame1(wx.Frame):
               pos=wx.Point(-5, 0), size=wx.Size(186, 496), style=0)
 
         self.txtIP = wx.TextCtrl(id=wxID_FRAME1TXTIP, name=u'txtIP',
-              parent=self.pnlCentralina, pos=wx.Point(10, 24), size=wx.Size(94,
+              parent=self.pnlCentralina, pos=wx.Point(10, 24), size=wx.Size(88,
               21), style=0, value=u'10.0.0.10')
 
         self.txtPort1 = wx.TextCtrl(id=wxID_FRAME1TXTPORT1, name=u'txtPort1',
-              parent=self.pnlCentralina, pos=wx.Point(108, 24), size=wx.Size(36,
+              parent=self.pnlCentralina, pos=wx.Point(101, 24), size=wx.Size(36,
               21), style=0, value=u'3500')
 
         self.txtport2 = wx.TextCtrl(id=wxID_FRAME1TXTPORT2, name=u'txtport2',
-              parent=self.pnlCentralina, pos=wx.Point(146, 24), size=wx.Size(36,
+              parent=self.pnlCentralina, pos=wx.Point(140, 24), size=wx.Size(36,
               21), style=0, value=u'3365')
 
         self.btnTest = wx.Button(id=wxID_FRAME1BTNTEST, label=u'Stato?',
@@ -799,14 +824,87 @@ class Frame1(wx.Frame):
               id=wxID_FRAME1BTNEXPORTFILE)
 
         self.btnCanellaTutto = wx.Button(id=wxID_FRAME1BTNCANELLATUTTO,
-              label=u'Cancella Memoria Centralina', name=u'btnCanellaTutto',
-              parent=self.pnlCentralina, pos=wx.Point(10, 452),
-              size=wx.Size(168, 23), style=0)
+              label=u'Cancella Memoria', name=u'btnCanellaTutto',
+              parent=self.pnlCentralina, pos=wx.Point(10, 444),
+              size=wx.Size(158, 23), style=0)
         self.btnCanellaTutto.Enable(False)
-        self.btnCanellaTutto.SetBackgroundColour(wx.Colour(240, 240, 240))
+        self.btnCanellaTutto.SetBackgroundColour(wx.Colour(255, 0, 0))
         self.btnCanellaTutto.SetBackgroundStyle(wx.BG_STYLE_SYSTEM)
+        self.btnCanellaTutto.SetForegroundColour(wx.Colour(255, 255, 255))
+        self.btnCanellaTutto.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.BOLD,
+              False, u'Tahoma'))
         self.btnCanellaTutto.Bind(wx.EVT_BUTTON, self.OnBtnCanellaTuttoButton,
               id=wxID_FRAME1BTNCANELLATUTTO)
+
+        self.txtNodeIp = wx.TextCtrl(id=wxID_FRAME1TXTNODEIP, name=u'txtNodeIp',
+              parent=self.panelNode, pos=wx.Point(10, 276), size=wx.Size(94,
+              21), style=0, value=u'')
+
+        self.txtPortInput = wx.TextCtrl(id=wxID_FRAME1TXTPORTINPUT,
+              name=u'txtPortInput', parent=self.panelNode, pos=wx.Point(108,
+              276), size=wx.Size(36, 21), style=0, value=u'')
+
+        self.txtPortOutput = wx.TextCtrl(id=wxID_FRAME1TXTPORTOUTPUT,
+              name=u'txtPortOutput', parent=self.panelNode, pos=wx.Point(154,
+              276), size=wx.Size(36, 21), style=0, value=u'')
+
+        self.pnlScpiConf = wx.Panel(id=wxID_FRAME1PNLSCPICONF,
+              name=u'pnlScpiConf', parent=self.panelNode, pos=wx.Point(8, 304),
+              size=wx.Size(304, 72), style=wx.TAB_TRAVERSAL)
+
+        self.staticText25 = wx.StaticText(id=wxID_FRAME1STATICTEXT25,
+              label=u'Periodo H:M:S', name='staticText25',
+              parent=self.pnlScpiConf, pos=wx.Point(10, 5), size=wx.Size(69,
+              13), style=0)
+
+        self.txtConfHH = wx.TextCtrl(id=wxID_FRAME1TXTCONFHH, name=u'txtConfHH',
+              parent=self.pnlScpiConf, pos=wx.Point(83, 5), size=wx.Size(29,
+              21), style=0, value=u'')
+        self.txtConfHH.SetEditable(True)
+        self.txtConfHH.SetBackgroundColour(wx.Colour(255, 255, 255))
+        self.txtConfHH.SetMaxLength(2)
+        self.txtConfHH.Enable(True)
+
+        self.txtConfMM = wx.TextCtrl(id=wxID_FRAME1TXTCONFMM, name=u'txtConfMM',
+              parent=self.pnlScpiConf, pos=wx.Point(115, 5), size=wx.Size(29,
+              21), style=0, value=u'')
+        self.txtConfMM.SetEditable(True)
+        self.txtConfMM.SetBackgroundColour(wx.Colour(255, 255, 255))
+        self.txtConfMM.SetMaxLength(2)
+        self.txtConfMM.Enable(True)
+
+        self.txtConfSS = wx.TextCtrl(id=wxID_FRAME1TXTCONFSS, name=u'txtConfSS',
+              parent=self.pnlScpiConf, pos=wx.Point(147, 5), size=wx.Size(29,
+              21), style=0, value=u'')
+        self.txtConfSS.SetEditable(True)
+        self.txtConfSS.SetBackgroundColour(wx.Colour(255, 255, 255))
+        self.txtConfSS.SetMaxLength(2)
+        self.txtConfSS.Enable(True)
+
+        self.staticText24 = wx.StaticText(id=wxID_FRAME1STATICTEXT24,
+              label=u'N\xb0 Campioni', name='staticText24',
+              parent=self.pnlScpiConf, pos=wx.Point(10, 36), size=wx.Size(59,
+              13), style=0)
+
+        self.txtConfSamples = wx.TextCtrl(id=wxID_FRAME1TXTCONFSAMPLES,
+              name=u'txtConfSamples', parent=self.pnlScpiConf, pos=wx.Point(83,
+              36), size=wx.Size(61, 21), style=0, value=u'')
+        self.txtConfSamples.SetEditable(True)
+        self.txtConfSamples.SetBackgroundColour(wx.Colour(255, 255, 255))
+        self.txtConfSamples.SetMaxLength(4)
+        self.txtConfSamples.Enable(True)
+
+        self.btnIPAD = wx.Button(id=wxID_FRAME1BTNIPAD,
+              label=u'Imposta indirizzo IP', name=u'btnIPAD',
+              parent=self.pnlCentralina, pos=wx.Point(10, 472),
+              size=wx.Size(158, 23), style=0)
+        self.btnIPAD.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self.btnIPAD.SetForegroundColour(wx.Colour(255, 255, 255))
+        self.btnIPAD.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.BOLD, False,
+              u'Tahoma'))
+        self.btnIPAD.Enable(False)
+        self.btnIPAD.Bind(wx.EVT_BUTTON, self.OnBtnIPADButton,
+              id=wxID_FRAME1BTNIPAD)
 
         self._init_coll_notebook1_Pages(self.notebook1)
 
@@ -1257,7 +1355,16 @@ class Frame1(wx.Frame):
         if date_to!=None:
             sextra = sextra + " AND nrs_datapoint.datetime_at <= '%s'" % date_to
         sQuery = """
-            SELECT DISTINCT nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value AS calc_value_at , datetime_at,  sample_no 
+            SELECT DISTINCT 
+            nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value AS calc_value_at 
+            , datetime_at
+            ,  sample_no 
+            , value_at
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula            
             FROM  nrs_datastream, nrs_datapoint
             WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND 
             nrs_datastream_id = %d AND %s
@@ -1265,7 +1372,7 @@ class Frame1(wx.Frame):
         """ % (datastream_id, sextra)
         retVal = db_cur.execute(sQuery)
         rows = retVal.fetchall()
-        x=0
+        xx=0
         val=[]
         dta=[]
         lbl=[]
@@ -1275,15 +1382,26 @@ class Frame1(wx.Frame):
         if avg_val == None:
             tmpavg = 0
         for row in rows:
-            x = x + 1
-            val.append(row[0])
+            xx = xx + 1
+            at_val = float(row[3])
+            const = row[4]
+            lambda_val = float(row[5])
+            first = row[6]
+            second = row[7]
+            sFormula = row[8]
+            delta_val = at_val - lambda_val
+            x = delta_val
+            #resVal = second*x*x + first*x + const
+            resVal = eval(sFormula)
+            #val.append(row[0])
+            val.append(resVal)
             sDate = row[1]
             dtt=datetime.strptime(sDate,'%Y%m%d%H%M%S%f')
             sAt_from = dtt.strftime('%Y-%m-%d %H:%M:%S')
             #x = int(time.mktime(dtt.timetuple()))
             dta.append(sAt_from)
             ddatetime.append(dtt)
-            lbl.append(x)
+            lbl.append(xx)
             avg.append(tmpavg)
         db_conn.close()
         return_value={'val':val,'dta':dta,'lbl':lbl,'avg':avg,'datetime':ddatetime}
@@ -1348,14 +1466,14 @@ class Frame1(wx.Frame):
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         sQuery = """
-            SELECT id, title, node_uid, updated
+            SELECT id, title, node_uid, updated, ipaddress, portin, portout, confhh, confmm, confss, confsamples
             FROM nrs_node
             WHERE id = %d
         """ % id
         retVal = db_cur.execute(sQuery)
         row = retVal.fetchone()  
         if row:
-            return_value = {'id':row[0],'title':row[1],'node_uid':row[2],'updated':row[3]} 
+            return_value = {'id':row[0],'title':row[1],'node_uid':row[2],'updated':row[3],'ipaddress':row[4],'portin':row[5],'portout':row[6],'hh':row[7],'mm':row[8],'ss':row[9],'samp':row[10]} 
         
         db_conn.close()
         return return_value
@@ -1368,17 +1486,17 @@ class Frame1(wx.Frame):
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         sQuery = """
-            SELECT nrs_datastream.id, title, datastream_uid, nrs_datastream.updated, factor_value, lambda_value, constant_value, factor_title, max( nrs_datapoint.datetime_at) as max_date,  min( nrs_datapoint.datetime_at) as min_date
+            SELECT nrs_datastream.id, title, datastream_uid, nrs_datastream.updated, factor_value, lambda_value, constant_value, factor_title, max( nrs_datapoint.datetime_at) as max_date,  min( nrs_datapoint.datetime_at) as min_date , factor_value_2, ds_formula
             FROM nrs_datastream 
 			LEFT JOIN nrs_datapoint ON nrs_datastream.id = nrs_datapoint.nrs_datastream_id
             WHERE 
             nrs_datastream.id = %d
-            GROUP BY nrs_datastream.id, title, datastream_uid, nrs_datastream.updated, factor_value, lambda_value, constant_value, factor_title
+            GROUP BY nrs_datastream.id, title, datastream_uid, nrs_datastream.updated, factor_value, lambda_value, constant_value, factor_title, factor_value_2, ds_formula
         """ % id
         retVal = db_cur.execute(sQuery)
         row = retVal.fetchone()  
         if row:
-            return_value = {'id':row[0],'title':row[1],'datastream_uid':row[2],'updated':row[3],'den':row[4],'lambda':row[5],'const':row[6],'ds_len':row[7],'max_date':row[8],'min_date':row[9]} 
+            return_value = {'id':row[0],'title':row[1],'datastream_uid':row[2],'updated':row[3],'den':row[4],'lambda':row[5],'const':row[6],'ds_len':row[7],'max_date':row[8],'min_date':row[9],'second':row[10],'formula':row[11]} 
         db_conn.close()
         return return_value
     
@@ -1409,17 +1527,21 @@ class Frame1(wx.Frame):
             ret = self.UpdatetEnv(env_item)
         if self.selected_entity == 2:
             sTitle = self.txtNodeName.GetValue()
-            node_item = {'id': self.selected_entity_id, 'title':sTitle}
+            node_item = {'id': self.selected_entity_id, 'title':sTitle, 'ipaddress': self.txtNodeIp.GetValue(), 'portin':self.txtPortInput.GetValue() ,'portout':self.txtPortOutput.GetValue(),'hh':self.txtConfHH.GetValue(),'mm':self.txtConfMM.GetValue(),'ss':self.txtConfSS.GetValue(),'samples':self.txtConfSamples.GetValue() }
             ret = self.UpdatetNode(node_item)
         if self.selected_entity == 3:
             sDen = self.txtDen.GetValue()
             sConst = self.txtConst.GetValue()
             sLambda = self.txtLambda.GetValue()
+            sSecond = self.txtSecond.GetValue()
             sTitle = self.txtDsTitle.GetValue()
+            sFormula = self.txtFormula.GetValue()
             sDen = sDen.replace(',','.')
             sConst = sConst.replace(',','.')
             sLambda = sLambda.replace(',','.')
-            ds_item = {'id': self.selected_entity_id, 'den':sDen,'const':sConst,'lambda':sLambda,'title':sTitle}
+            sSecond = sSecond.replace(',','.')
+            sFormula = sFormula.replace(',','.')
+            ds_item = {'id': self.selected_entity_id, 'den':sDen,'const':sConst,'lambda':sLambda,'title':sTitle,'second':sSecond,'formula':sFormula}
             ret = self.UpdatetDs(ds_item)
         event.Skip()
     
@@ -1452,9 +1574,9 @@ class Frame1(wx.Frame):
             UPDATE 
             nrs_node
             SET
-            title = '%s' , updated= '%s'
+            title = '%s' , updated= '%s', ipaddress = '%s',portin = '%s',portout = '%s',confhh = '%s',confmm = '%s',confss = '%s',confsamples = '%s'
             WHERE id = %d
-        """ % (node_item['title'],sUpdated, node_item['id'])
+        """ % (node_item['title'],sUpdated, node_item['ipaddress'], node_item['portin'], node_item['portout'], node_item['hh'], node_item['mm'], node_item['ss'], node_item['samples'], node_item['id'])
         retVal = db_cur.execute(sQuery)
         db_conn.commit()
         db_conn.close()
@@ -1471,9 +1593,9 @@ class Frame1(wx.Frame):
             UPDATE 
             nrs_datastream
             SET
-            factor_value = %s , lambda_value= %s, constant_value=%s, updated='%s', title='%s' 
+            factor_value = %s , lambda_value= %s, constant_value=%s, updated='%s', title='%s' , factor_value_2=%s, ds_formula='%s'
             WHERE id = %d
-        """ % (ds_item['den'], ds_item['lambda'], ds_item['const'],sUpdated,ds_item['title'],ds_item['id'])
+        """ % (ds_item['den'], ds_item['lambda'], ds_item['const'],sUpdated,ds_item['title'],ds_item['second'],ds_item['formula'],ds_item['id'])
         retVal = db_cur.execute(sQuery)
         db_conn.commit()
         db_conn.close()
@@ -1584,6 +1706,21 @@ class Frame1(wx.Frame):
         self.txtNodeName.SetValue(nodeData['title'])
         self.txtNodeCode.Clear()
         self.txtNodeCode.SetValue(nodeData['node_uid'])
+        #'ipaddress':row[4],'portin':row[5],'portout':row[6],'hh':row[7],'mm':row[8],'ss':row[9],'samp':row[10]}
+        self.txtNodeIp.Clear() 
+        self.txtNodeIp.SetValue(nodeData['ipaddress'])
+        self.txtPortInput.Clear() 
+        self.txtPortInput.SetValue(nodeData['portin'])
+        self.txtPortOutput.Clear() 
+        self.txtPortOutput.SetValue(nodeData['portout'])
+        self.txtConfHH.Clear() 
+        self.txtConfHH.SetValue(nodeData['hh'])
+        self.txtConfMM.Clear() 
+        self.txtConfMM.SetValue(nodeData['mm'])
+        self.txtConfSS.Clear() 
+        self.txtConfSS.SetValue(nodeData['ss'])
+        self.txtConfSamples.Clear() 
+        self.txtConfSamples.SetValue(nodeData['samp'])
         self.LoadDatastream(self.selected_entity_id)     
         self.LoadFilenames(id)   
         sAt_from , sAt_to = self.GetDatapointDatetimeLimits()
@@ -1595,7 +1732,17 @@ class Frame1(wx.Frame):
         self.nodeselected_id = self.selected_entity_id
         self.LoadDataFilter(self.selected_entity_id)
         self.txtNodeDatastream.SetValue(self.txtNodeCode.GetValue())
+        self.loadConnectionInfo()
         event.Skip()
+
+    def loadConnectionInfo(self):
+        self.txtIP.SetValue(self.txtNodeIp.GetValue());
+        self.txtPort1.SetValue(self.txtPortInput.GetValue());
+        self.txtport2.SetValue(self.txtPortOutput.GetValue());
+        self.txtPERIH.SetValue(self.txtConfHH.GetValue());
+        self.txtPERIM.SetValue(self.txtConfMM.GetValue());
+        self.txtPERIS.SetValue(self.txtConfSS.GetValue());
+        self.txtSAMP.SetValue(self.txtConfSamples.GetValue());
 
     def OnListCtrlDatastreamListItemSelected(self, event):
         self.selected_entity = 3
@@ -1615,6 +1762,10 @@ class Frame1(wx.Frame):
         self.txtLambda.SetValue(u'%f' % dsData['lambda'])
         self.txtDen.Clear()
         self.txtDen.SetValue(u'%f' % dsData['den'])
+        self.txtSecond.Clear()
+        self.txtSecond.SetValue(u'%f' % dsData['second'])
+        self.txtFormula.Clear()
+        self.txtFormula.SetValue(u'%s' % dsData['formula'])
         if dsData['max_date']!= None:
 			max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
 			wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)     
@@ -2210,6 +2361,7 @@ class Frame1(wx.Frame):
         self.btnImportSCHE.Enabled = False
         self.btnExportFile.Enabled = False
         self.txtPERIH.Enabled = False
+        self.btnIPAD.Enabled = False
         self.txtPERIM.Enabled = False
         self.txtPERIS.Enabled = False
         self.txtSAMP.Enabled = False     
@@ -2236,6 +2388,7 @@ class Frame1(wx.Frame):
                     self.btnLista.Enabled = True
                     self.btnSavePERI_SAM.Enabled = True
                     self.txtPERIH.Enabled = True
+                    self.btnIPAD.Enabled = True
                     self.txtPERIM.Enabled = True
                     self.txtPERIS.Enabled = True
                     self.txtSAMP.Enabled = True
@@ -2317,6 +2470,7 @@ class Frame1(wx.Frame):
                 self.txtPERIM.Enabled = False
                 self.txtPERIS.Enabled = False
                 self.txtSAMP.Enabled = False   
+                self.btnIPAD.Enabled = False
                 self.btnACQUSTART.Enabled = False
                 self.lstDir.Enabled = False   
                 self.btnCanellaTutto.Enabled = False
@@ -2344,7 +2498,8 @@ class Frame1(wx.Frame):
             self.txtPERIS.Enabled = False
             self.txtSAMP.Enabled = False     
             self.btnACQUSTART.Enabled = False
-            self.lstDir.Enabled = False   
+            self.lstDir.Enabled = False      
+            self.btnIPAD.Enabled = False
             self.btnCanellaTutto.Enabled = False
             self.btnImportSCHE.Enabled = False
             self.btnExportFile.Enabled = False
@@ -2487,5 +2642,15 @@ class Frame1(wx.Frame):
         except Exception, e:
             self.Info('something\'s wrong with %s:%d. Exception type is %s' % (self.host, self.port, `e`),'DB non corretto')
             return False
+
+    def OnBtnIPADButton(self, event):
+        res=self.scpi.getSTAT()
+        if self.scpi.status == 1:
+            sIPAD = self.txtIP.GetValue()
+            sSM = "255.0.0.0"
+            sGW = "0.0.0.0"
+            self.scpi.setIPAD(self,sIPAD,sSM,sGW)
+            self.Info('Configurazione della scheda di rete della centralina eseguita! Attendere il riavvio','Configurazione di rete')
+
 
         

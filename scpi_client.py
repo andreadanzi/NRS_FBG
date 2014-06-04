@@ -235,7 +235,17 @@ class SCPICli():
                 returnVal = self.parseACK(retData) 
             self.close()
         return returnVal  
-    
+
+
+    #:SYST:IPAD:192.168.2.100:255.255.255.0:0.0.0.0 
+    def setIPAD(self,sIPAD,sSM,sGW):
+        iRet = None
+        if self.connect():
+            iRet = self.sendCmd(":SYST:IPAD:%s:%s:%s" % (sIPAD,sSM,sGW))
+            self.close()
+        return iRet   
+
+
     #:SYST:TIME?
     def getTIME(self):
         returnVal = None
