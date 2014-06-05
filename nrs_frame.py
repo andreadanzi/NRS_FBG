@@ -109,11 +109,11 @@ class Frame1(wx.Frame):
     def _init_coll_notebook1_Pages(self, parent):
         # generated method, don't edit
 
-        parent.AddPage(imageId=0, page=self.panelEnv, select=False,
+        parent.AddPage(imageId=0, page=self.panelEnv, select=True,
               text=u'Environment')
         parent.AddPage(imageId=1, page=self.panelNode, select=False,
               text=u'Node')
-        parent.AddPage(imageId=2, page=self.panelDatastream, select=True,
+        parent.AddPage(imageId=2, page=self.panelDatastream, select=False,
               text=u'Datastream')
         parent.AddPage(imageId=3, page=self.panelDatapoint, select=False,
               text=u'Datapoint')
@@ -1705,8 +1705,11 @@ class Frame1(wx.Frame):
         self.txtNodeName.Clear()
         self.txtNodeName.SetValue(nodeData['title'])
         self.txtNodeCode.Clear()
-        self.txtNodeCode.SetValue(nodeData['node_uid'])
-        #'ipaddress':row[4],'portin':row[5],'portout':row[6],'hh':row[7],'mm':row[8],'ss':row[9],'samp':row[10]}
+        sNodeUid = nodeData['node_uid']
+        sEnveUid = self.txtEnvCod.GetValue()
+        sNodeFolder = sNodeUid[len(sEnveUid):]
+        self.txtCtrlCentralina.SetValue(sNodeFolder)
+        self.txtNodeCode.SetValue(sNodeUid)
         self.txtNodeIp.Clear() 
         self.txtNodeIp.SetValue(nodeData['ipaddress'])
         self.txtPortInput.Clear() 
