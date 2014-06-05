@@ -9,3 +9,4 @@ gibelogfile_path= "C:\\Users\\andrea.danzi\\Documents\\rd\\sws\\GIBE3\\pyMQTT\\"
 gibeimportfolder_path="C:\\Users\\andrea.danzi\\Documents\\rd\\sws\\GIBE3\\pyMQTT\\data"
 database="C:\\Users\\andrea.danzi\\Documents\\rd\\sws\\GIBE3\\pyMQTT\\nrs.db"
 environment_uid="459"
+#bisogna aggiornare sta roba
