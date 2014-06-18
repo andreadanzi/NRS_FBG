@@ -8,3 +8,11 @@ add column
   
 Gestire i file immagine, invece che su C:\ tramite file di configurazione
 Permettere di asssegnare sui file datastream di centraline diverse...perchè quelle verticali non dipendono dal deployment
+
+
+
+-cALCOLO DELLA MEDIA UTILIZZANDO LA FORMULA
+-SELEZIONE MULTIPLA DEI DATASTREAM PER BUTTARLI SULLA SEZIONE
+- Gestire i file immagine (nrs_datastream_picture) indipendentemente da nodo/centralina, invece che su C:\ tramite file di configurazione
+- Togliere le vecchie centraline
+- Verificare impostazione indirizzo IP

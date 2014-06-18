@@ -25,7 +25,7 @@ def create(parent):
  wxID_FRAME1BTNIMPORTSCHE, wxID_FRAME1BTNIPAD, wxID_FRAME1BTNLISTA, 
  wxID_FRAME1BTNSAVEPERI_SAM, wxID_FRAME1BTNTEST, wxID_FRAME1BUTTONDELETE, 
  wxID_FRAME1BUTTONSAVE, wxID_FRAME1CHECKBOX1, wxID_FRAME1CHECKBOX2, 
- wxID_FRAME1CHKDATAFILTER, wxID_FRAME1CHKFORMAT, 
+ wxID_FRAME1CHKBYNODE, wxID_FRAME1CHKDATAFILTER, wxID_FRAME1CHKFORMAT, 
  wxID_FRAME1DATABASEBROWSEBUTTON, wxID_FRAME1DATEFROM, 
  wxID_FRAME1DATEPICKERCTRL1, wxID_FRAME1DATEPICKERCTRL2, wxID_FRAME1DATETO, 
  wxID_FRAME1DTFROM, wxID_FRAME1DTTO, wxID_FRAME1ENVNOME, 
@@ -62,7 +62,7 @@ def create(parent):
  wxID_FRAME1TXTPORTINPUT, wxID_FRAME1TXTPORTOUTPUT, wxID_FRAME1TXTSAMP, 
  wxID_FRAME1TXTSECOND, wxID_FRAME1TXTSSFROM, wxID_FRAME1TXTSSTO, 
  wxID_FRAME1TXTSTATUS, wxID_FRAME1WORKINGDIRBROWSEBUTTON, 
-] = [wx.NewId() for _init_ctrls in range(124)]
+] = [wx.NewId() for _init_ctrls in range(125)]
 
 class Frame1(wx.Frame):
 
@@ -570,7 +570,7 @@ class Frame1(wx.Frame):
         self.imgMap.Bind(wx.EVT_LEFT_DCLICK, self.OnImgMapLeftDclick)
 
         self.listCtrlImages = wx.ListCtrl(id=wxID_FRAME1LISTCTRLIMAGES,
-              name=u'listCtrlImages', parent=self.panel3, pos=wx.Point(24, 64),
+              name=u'listCtrlImages', parent=self.panel3, pos=wx.Point(24, 90),
               size=wx.Size(296, 120), style=wx.LC_REPORT)
         self._init_coll_listCtrlImages_Columns(self.listCtrlImages)
         self.listCtrlImages.Bind(wx.EVT_LIST_ITEM_SELECTED,
@@ -906,6 +906,13 @@ class Frame1(wx.Frame):
         self.btnIPAD.Bind(wx.EVT_BUTTON, self.OnBtnIPADButton,
               id=wxID_FRAME1BTNIPAD)
 
+        self.chkByNode = wx.CheckBox(id=wxID_FRAME1CHKBYNODE,
+              label=u'Filtra per Node', name=u'chkByNode', parent=self.panel3,
+              pos=wx.Point(24, 64), size=wx.Size(96, 13), style=0)
+        self.chkByNode.SetValue(False)
+        self.chkByNode.Bind(wx.EVT_CHECKBOX, self.OnChkByNodeCheckbox,
+              id=wxID_FRAME1CHKBYNODE)
+
         self._init_coll_notebook1_Pages(self.notebook1)
 
         self._init_sizers()
@@ -957,6 +964,7 @@ class Frame1(wx.Frame):
         	  gibe2nrs.run()
 
     def LoadFilenames(self,nodeId):
+        bFilterNodeIsChecked = self.chkByNode.IsChecked();
         self.imgPath = os.path.join( self.NodeDir, "img");
         if nodeId>0:
             self.listCtrlImages.DeleteAllItems()
@@ -1192,7 +1200,7 @@ class Frame1(wx.Frame):
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         sQuery = """
-            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at)
+            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at), nrs_datastream.nrs_node_id 
             FROM nrs_datastream 
 			LEFT JOIN nrs_datapoint ON nrs_datapoint.nrs_datastream_id = nrs_datastream.id
             WHERE nrs_datastream.nrs_node_id = %d 
@@ -1233,6 +1241,55 @@ class Frame1(wx.Frame):
 			wxmindate = wx.DateTimeFromDMY(min_date.day, min_date.month - 1, min_date.year, 0, 0, 0)
 			self.dtFrom.SetValue(wxmindate)
         db_conn.close()
+
+    def LoadAllDatastreams(self):
+        self.database_file = self.databaseBrowseButton.GetValue()
+        settings.database = self.database_file
+        self.listCtrlDatastream.DeleteAllItems()
+        db_conn = sqlite3.connect(settings.database)
+        db_cur = db_conn.cursor()
+        sQuery = """
+            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at), nrs_datastream.nrs_node_id 
+            FROM nrs_datastream 
+			LEFT JOIN nrs_datapoint ON nrs_datapoint.nrs_datastream_id = nrs_datastream.id
+            GROUP BY title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title
+            ORDER BY title ASC
+        """
+        retVal = db_cur.execute(sQuery)
+        rows = retVal.fetchall()
+        x=0
+        dsData={}
+        bFirst = True
+        self.datastreamslist = []
+        for row in rows:
+            self.datastreamslist.append(row)
+            self.listCtrlDatastream.InsertStringItem(x,row[0])
+            if row[4]==None:
+                row[4]=""
+            self.listCtrlDatastream.SetStringItem(x,1,row[1])
+            self.listCtrlDatastream.SetStringItem(x,2,row[4])
+            self.listCtrlDatastream.SetStringItem(x,3,row[2])
+            self.listCtrlDatastream.SetItemData(x,row[3])
+            if bFirst:
+                dsData['max_date'] = row[5]
+                dsData['min_date'] = row[6]
+                bFirst = False
+            else:
+                if row[5] > dsData['max_date']:
+                    dsData['max_date'] = row[5] 
+                if row[6] < dsData['min_date']:
+                    dsData['min_date'] = row[6] 
+            x=x+1
+        if dsData['max_date'] != None:
+			max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
+			wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)        
+			self.dtTo.SetValue(wxmaxdate)
+        if dsData['min_date'] != None:
+			min_date=datetime.strptime(dsData['min_date'],'%Y%m%d%H%M%S%f')
+			wxmindate = wx.DateTimeFromDMY(min_date.day, min_date.month - 1, min_date.year, 0, 0, 0)
+			self.dtFrom.SetValue(wxmindate)
+        db_conn.close()
+
 
     def LoadDistinctDatastreamUpdated2(self, node_id, from_date=None, to_date=None):
         return_value = -99
@@ -2106,7 +2163,6 @@ class Frame1(wx.Frame):
         return ret_min, ret_max
     
     def LoadDatastreamPictures(self):
-         #passo la lista dei datastream associati
         sQuery = """
             SELECT nrs_datastream_picture.id, nrs_datastream.id, nrs_datastream.title, nrs_datastream_picture.filename, nrs_datastream_picture.description, nrs_datastream.factor_title, nrs_datastream_picture.px, nrs_datastream_picture.py 
             FROM nrs_datastream_picture, nrs_datastream
@@ -2125,13 +2181,21 @@ class Frame1(wx.Frame):
         db_conn.close() 
         
     def LoadDatastreamPicturesByNode(self,nodeID):
+        bFilterNodeIsChecked = self.chkByNode.IsChecked();
         results = []
         sQuery = """
-            SELECT DISTINCT nrs_datastream_picture.filename 
-            FROM nrs_datastream_picture, nrs_datastream
-            WHERE
-            nrs_datastream_picture.datastream_id = nrs_datastream.id AND nrs_datastream.nrs_node_id = %d
-        """ % nodeID
+                SELECT DISTINCT nrs_datastream_picture.filename 
+                FROM nrs_datastream_picture, nrs_datastream
+                WHERE
+                nrs_datastream_picture.datastream_id = nrs_datastream.id
+        """ 
+        if bFilterNodeIsChecked:
+            sQuery = """
+                SELECT DISTINCT nrs_datastream_picture.filename 
+                FROM nrs_datastream_picture, nrs_datastream
+                WHERE
+                nrs_datastream_picture.datastream_id = nrs_datastream.id AND nrs_datastream.nrs_node_id = %d
+            """ % nodeID
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         retVal = db_cur.execute(sQuery)    
@@ -2185,6 +2249,8 @@ class Frame1(wx.Frame):
         return modification_time, access_time
 
     def OnImgMapLeftDclick(self, event):
+        if not self.chkByNode.IsChecked():
+            self.LoadAllDatastreams()
         imgBox = imgAssociation(self)
         imgBox.setParameters(self.wximgMap,self.nrs_datastream_pictures,self.datastreamslist,self.imgFileName,self.imgFilePath, settings.database,self.wxMinDatetime_at,self.wxMaxDatetime_at, self.EnvDir)
         imgBox.ShowModal()
@@ -2194,6 +2260,8 @@ class Frame1(wx.Frame):
         event.Skip()
 
     def OnListCtrlImagesLeftDclick(self, event):
+        if not self.chkByNode.IsChecked():
+            self.LoadAllDatastreams()
         imgBox = imgAssociation(self)
         imgBox.setParameters(self.wximgMap,self.nrs_datastream_pictures,self.datastreamslist,self.imgFileName, self.imgFilePath,settings.database,self.wxMinDatetime_at,self.wxMaxDatetime_at, self.EnvDir)
         imgBox.ShowModal()
@@ -2647,13 +2715,15 @@ class Frame1(wx.Frame):
             return False
 
     def OnBtnIPADButton(self, event):
-        res=self.scpi.getSTAT()
+        res = self.scpi.getSTAT()
         if self.scpi.status == 1:
-            sIPAD = self.txtIP.GetValue()
+            sIPAD = self.txtNodeIp.GetValue()
             sSM = "255.0.0.0"
             sGW = "0.0.0.0"
             self.scpi.setIPAD(self,sIPAD,sSM,sGW)
             self.Info('Configurazione della scheda di rete della centralina eseguita! Attendere il riavvio','Configurazione di rete')
 
+    def OnChkByNodeCheckbox(self, event):
+        self.LoadFilenames(self.nodeselected_id)
 
-        
+      
