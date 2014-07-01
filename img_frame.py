@@ -6,6 +6,7 @@ import wx.lib.scrolledpanel
 import sqlite3, re, time, os
 import matplotlib
 import numpy as np 
+import Image
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
@@ -31,13 +32,15 @@ def create(parent):
  wxID_IMGASSOCIATIONLISTCTRLDATASTREAM, 
  wxID_IMGASSOCIATIONLSTCTRLASSOCIATEDDATASTREAM, wxID_IMGASSOCIATIONNTBKIMG, 
  wxID_IMGASSOCIATIONPANEL1, wxID_IMGASSOCIATIONPANEL2, 
- wxID_IMGASSOCIATIONPANEL3, wxID_IMGASSOCIATIONSCRLWIN, 
+ wxID_IMGASSOCIATIONPANEL3, wxID_IMGASSOCIATIONRBTFILTERBYCODE, 
+ wxID_IMGASSOCIATIONRBTFILTERBYNAME, wxID_IMGASSOCIATIONSCRLWIN, 
  wxID_IMGASSOCIATIONSTATICBOX1, wxID_IMGASSOCIATIONSTATICBOX2, 
  wxID_IMGASSOCIATIONSTATICTEXT1, wxID_IMGASSOCIATIONSTATICTEXT2, 
  wxID_IMGASSOCIATIONTEXTCLICKED, wxID_IMGASSOCIATIONTXTDESCRIZIONE, 
- wxID_IMGASSOCIATIONTXTOUTPUTFILE, wxID_IMGASSOCIATIONTXTPOSITION, 
- wxID_IMGASSOCIATIONTXTPX, wxID_IMGASSOCIATIONTXTPY, 
-] = [wx.NewId() for _init_ctrls in range(28)]
+ wxID_IMGASSOCIATIONTXTFILTERDSBYNAME, wxID_IMGASSOCIATIONTXTOUTPUTFILE, 
+ wxID_IMGASSOCIATIONTXTPOSITION, wxID_IMGASSOCIATIONTXTPX, 
+ wxID_IMGASSOCIATIONTXTPY, 
+] = [wx.NewId() for _init_ctrls in range(31)]
 
 class imgAssociation(wx.Dialog):
     def _init_coll_boxSizer1_Items(self, parent):
@@ -96,7 +99,7 @@ class imgAssociation(wx.Dialog):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Dialog.__init__(self, id=wxID_IMGASSOCIATION, name=u'imgAssociation',
-              parent=prnt, pos=wx.Point(392, 7), size=wx.Size(958, 727),
+              parent=prnt, pos=wx.Point(396, 164), size=wx.Size(958, 727),
               style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.TRANSPARENT_WINDOW | wx.DEFAULT_DIALOG_STYLE,
               title=u'Datastream to Image Association')
         self.SetClientSize(wx.Size(942, 689))
@@ -144,7 +147,7 @@ class imgAssociation(wx.Dialog):
 
         self.lstCtrlAssociatedDatastream = wx.ListCtrl(id=wxID_IMGASSOCIATIONLSTCTRLASSOCIATEDDATASTREAM,
               name=u'lstCtrlAssociatedDatastream', parent=self.panel1,
-              pos=wx.Point(416, 16), size=wx.Size(485, 480),
+              pos=wx.Point(416, 48), size=wx.Size(485, 480),
               style=wx.LC_REPORT)
         self._init_coll_lstCtrlAssociatedDatastream_Columns(self.lstCtrlAssociatedDatastream)
         self.lstCtrlAssociatedDatastream.Bind(wx.EVT_LIST_ITEM_SELECTED,
@@ -197,7 +200,7 @@ class imgAssociation(wx.Dialog):
 
         self.listCtrlDatastream = wx.ListCtrl(id=wxID_IMGASSOCIATIONLISTCTRLDATASTREAM,
               name=u'listCtrlDatastream', parent=self.panel1, pos=wx.Point(24,
-              16), size=wx.Size(328, 624), style=wx.LC_REPORT)
+              48), size=wx.Size(328, 624), style=wx.LC_REPORT)
         self._init_coll_listCtrlDatastream_Columns(self.listCtrlDatastream)
         self.listCtrlDatastream.Bind(wx.EVT_LIST_ITEM_SELECTED,
               self.OnListCtrlDatastreamListItemSelected,
@@ -263,6 +266,30 @@ class imgAssociation(wx.Dialog):
               size=wx.Size(60, 21), style=0)
         self.chcInterpolation.SetSelection(0)
 
+        self.txtFilterDSByName = wx.TextCtrl(id=wxID_IMGASSOCIATIONTXTFILTERDSBYNAME,
+              name=u'txtFilterDSByName', parent=self.panel1, pos=wx.Point(120,
+              16), size=wx.Size(224, 21), style=wx.TE_PROCESS_ENTER, value=u'')
+        self.txtFilterDSByName.Bind(wx.EVT_TEXT_ENTER,
+              self.OnTxtFilterDSByNameTextEnter,
+              id=wxID_IMGASSOCIATIONTXTFILTERDSBYNAME)
+
+        self.rbtFilterByName = wx.RadioButton(id=wxID_IMGASSOCIATIONRBTFILTERBYNAME,
+              label=u'Filtra Nome', name=u'rbtFilterByName', parent=self.panel1,
+              pos=wx.Point(24, 8), size=wx.Size(81, 13), style=0)
+        self.rbtFilterByName.SetValue(True)
+        self.rbtFilterByName.Bind(wx.EVT_RADIOBUTTON,
+              self.OnRbtFilterByNameRadiobutton,
+              id=wxID_IMGASSOCIATIONRBTFILTERBYNAME)
+
+        self.rbtFilterByCode = wx.RadioButton(id=wxID_IMGASSOCIATIONRBTFILTERBYCODE,
+              label=u'Filtra Codice', name=u'rbtFilterByCode',
+              parent=self.panel1, pos=wx.Point(24, 24), size=wx.Size(81, 13),
+              style=0)
+        self.rbtFilterByCode.SetValue(True)
+        self.rbtFilterByCode.Bind(wx.EVT_RADIOBUTTON,
+              self.OnRadioButton1Radiobutton,
+              id=wxID_IMGASSOCIATIONRBTFILTERBYCODE)
+
         self._init_coll_ntbkImg_Pages(self.ntbkImg)
 
         self._init_sizers()
@@ -320,6 +347,7 @@ class imgAssociation(wx.Dialog):
 			self.dateFrom.SetValue(min_date)
         if max_date:
 			self.dateTo.SetValue(max_date)        
+        self.default_available_datastreamList = available_datastreamList 
         self.available_datastreamList = available_datastreamList
         self.setAvailableDatastreams()
         self.setDatastreamsPicutes()
@@ -372,7 +400,28 @@ class imgAssociation(wx.Dialog):
             id = int(sm)        
             data = self.GetDatastreamPicture(id)
             self.textClicked.SetValue(u'%d-%d' % (data['px'], data['py']))
-        
+
+
+    def filterAvailableDatastreams(self, sValue, sType):
+        self.listCtrlDatastream.DeleteAllItems()
+        x = 0
+        for row in self.available_datastreamList:
+            if sType == "C":
+                str1 = row[1]
+                if str1.find(sValue) == -1:
+                    continue                
+            if sType == "N":
+                str0 = row[0]
+                if str0.find(sValue) == -1:
+                    continue
+            self.listCtrlDatastream.InsertStringItem(x,row[0])
+            if row[4]==None:
+                row[4]=""
+            self.listCtrlDatastream.SetStringItem(x,1,row[1])
+            self.listCtrlDatastream.SetStringItem(x,2,row[4])
+            self.listCtrlDatastream.SetStringItem(x,3,row[2])
+            self.listCtrlDatastream.SetItemData(x,row[3])
+            x = x + 1
 
     def setAvailableDatastreams(self):
         self.listCtrlDatastream.DeleteAllItems()
@@ -719,14 +768,19 @@ class imgAssociation(wx.Dialog):
         delta = 1.0
         x = np.arange(0, img_shape[1], delta)
         y = np.arange(0, img_shape[0], delta)
-        yj=img_shape[0]+1
-        xj=img_shape[1]+1
+        yj=img_shape[0]+1 #1201 601
+        xj=img_shape[1]+1 #1601 801
+        W = float(img_shape[1])
+        H = float(img_shape[0])
+        FW = W / float(800)
+        FH = H / float(600)
         gx, gy =  np.mgrid[0:xj, 0:yj]
         mysensors = np.zeros((0,2))
         myvalues = np.zeros(0,'f')
         rowList = self.LoadDatapoints(self.imgFileName,sAt_from, sAt_to)
         for row in rowList:
-            mysensors = np.append(mysensors,[[row[1],600-row[2]]],axis=0)
+            mysensors = np.append(mysensors,[[FW*row[1],H-FH*row[2]]],axis=0)
+            #mysensors = np.append(mysensors,[[row[1],600-row[2]]],axis=0)
             myvalues = np.append(myvalues,[row[3]],axis=0)
         sMethod = self.chcInterpolation.GetStringSelection()
         m_interp_cubic = griddata(mysensors, myvalues, (gx, gy), method=sMethod)
@@ -792,3 +846,23 @@ class imgAssociation(wx.Dialog):
             retValues.append(row)
         db_conn.close()
         return retValues
+
+    def checkDsFilters(self):
+        sFilter = self.txtFilterDSByName.GetValue()
+        sType = "N"
+        if self.rbtFilterByCode.GetValue():
+            sType = "C"
+        self.filterAvailableDatastreams(sFilter, sType)
+
+
+    def OnTxtFilterDSByNameTextEnter(self, event):
+        self.checkDsFilters()
+        event.Skip()
+
+    def OnRbtFilterByNameRadiobutton(self, event):
+        event = event
+        event.Skip()
+
+    def OnRadioButton1Radiobutton(self, event):
+        self.checkDsFilters()
+        event.Skip()
