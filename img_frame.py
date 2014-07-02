@@ -55,8 +55,8 @@ class imgAssociation(wx.Dialog):
               width=-1)
         parent.InsertColumn(col=1, format=wx.LIST_FORMAT_LEFT,
               heading=u'Codice', width=-1)
-        parent.InsertColumn(col=2, format=wx.LIST_FORMAT_LEFT,
-              heading=u'Frequenza', width=-1)
+        parent.InsertColumn(col=2, format=wx.LIST_FORMAT_LEFT, heading=u'CWL',
+              width=-1)
         parent.InsertColumn(col=3, format=wx.LIST_FORMAT_LEFT, heading=u'Data',
               width=-1)
 
@@ -75,8 +75,8 @@ class imgAssociation(wx.Dialog):
 
         parent.InsertColumn(col=0, format=wx.LIST_FORMAT_LEFT,
               heading=u'Datastream', width=100)
-        parent.InsertColumn(col=1, format=wx.LIST_FORMAT_LEFT,
-              heading=u'Frequenza', width=-1)
+        parent.InsertColumn(col=1, format=wx.LIST_FORMAT_LEFT, heading=u'CWL',
+              width=-1)
         parent.InsertColumn(col=2, format=wx.LIST_FORMAT_LEFT, heading=u'File',
               width=-1)
         parent.InsertColumn(col=3, format=wx.LIST_FORMAT_LEFT,
@@ -85,6 +85,8 @@ class imgAssociation(wx.Dialog):
               width=50)
         parent.InsertColumn(col=5, format=wx.LIST_FORMAT_LEFT, heading=u'y',
               width=50)
+        parent.InsertColumn(col=6, format=wx.LIST_FORMAT_LEFT, heading=u'id',
+              width=-1)
 
     def _init_sizers(self):
         # generated method, don't edit
@@ -99,7 +101,7 @@ class imgAssociation(wx.Dialog):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Dialog.__init__(self, id=wxID_IMGASSOCIATION, name=u'imgAssociation',
-              parent=prnt, pos=wx.Point(396, 164), size=wx.Size(958, 727),
+              parent=prnt, pos=wx.Point(353, 41), size=wx.Size(958, 727),
               style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.TRANSPARENT_WINDOW | wx.DEFAULT_DIALOG_STYLE,
               title=u'Datastream to Image Association')
         self.SetClientSize(wx.Size(942, 689))
@@ -170,16 +172,16 @@ class imgAssociation(wx.Dialog):
 
         self.txtDescrizione = wx.TextCtrl(id=wxID_IMGASSOCIATIONTXTDESCRIZIONE,
               name=u'txtDescrizione', parent=self.panel1, pos=wx.Point(424,
-              536), size=wx.Size(184, 72), style=wx.VSCROLL | wx.TE_MULTILINE,
+              560), size=wx.Size(184, 72), style=wx.VSCROLL | wx.TE_MULTILINE,
               value=u'')
 
         self.txtPX = wx.TextCtrl(id=wxID_IMGASSOCIATIONTXTPX, name=u'txtPX',
-              parent=self.panel1, pos=wx.Point(640, 536), size=wx.Size(40, 21),
+              parent=self.panel1, pos=wx.Point(640, 560), size=wx.Size(40, 21),
               style=0, value=u'')
         self.txtPX.SetEditable(True)
 
         self.txtPY = wx.TextCtrl(id=wxID_IMGASSOCIATIONTXTPY, name=u'txtPY',
-              parent=self.panel1, pos=wx.Point(712, 536), size=wx.Size(40, 21),
+              parent=self.panel1, pos=wx.Point(712, 560), size=wx.Size(40, 21),
               style=0, value=u'')
 
         self.staticText1 = wx.StaticText(id=wxID_IMGASSOCIATIONSTATICTEXT1,
@@ -192,11 +194,11 @@ class imgAssociation(wx.Dialog):
 
         self.staticBox1 = wx.StaticBox(id=wxID_IMGASSOCIATIONSTATICBOX1,
               label=u'Coordinate', name='staticBox1', parent=self.panel1,
-              pos=wx.Point(624, 512), size=wx.Size(160, 128), style=0)
+              pos=wx.Point(624, 536), size=wx.Size(160, 112), style=0)
 
         self.staticBox2 = wx.StaticBox(id=wxID_IMGASSOCIATIONSTATICBOX2,
               label=u'Descrizione', name='staticBox2', parent=self.panel1,
-              pos=wx.Point(416, 512), size=wx.Size(200, 128), style=0)
+              pos=wx.Point(416, 536), size=wx.Size(200, 112), style=0)
 
         self.listCtrlDatastream = wx.ListCtrl(id=wxID_IMGASSOCIATIONLISTCTRLDATASTREAM,
               name=u'listCtrlDatastream', parent=self.panel1, pos=wx.Point(24,
@@ -210,7 +212,7 @@ class imgAssociation(wx.Dialog):
 
         self.btnSave = wx.Button(id=wxID_IMGASSOCIATIONBTNSAVE,
               label=u'Modifica', name=u'btnSave', parent=self.panel1,
-              pos=wx.Point(640, 584), size=wx.Size(75, 23), style=0)
+              pos=wx.Point(640, 600), size=wx.Size(75, 23), style=0)
         self.btnSave.Bind(wx.EVT_BUTTON, self.OnBtnSaveButton,
               id=wxID_IMGASSOCIATIONBTNSAVE)
 
@@ -381,11 +383,12 @@ class imgAssociation(wx.Dialog):
             self.lstCtrlAssociatedDatastream.InsertStringItem(x,row[2])
             if row[4]==None:
                 row[4]=""
-            self.lstCtrlAssociatedDatastream.SetStringItem(x,1,row[5])
+            self.lstCtrlAssociatedDatastream.SetStringItem(x,1,u'%f' % row[8])
             self.lstCtrlAssociatedDatastream.SetStringItem(x,2,row[3])
             self.lstCtrlAssociatedDatastream.SetStringItem(x,3,row[4])
             self.lstCtrlAssociatedDatastream.SetStringItem(x,4,u'%d' % row[6])
             self.lstCtrlAssociatedDatastream.SetStringItem(x,5,u'%d' % row[7])
+            self.lstCtrlAssociatedDatastream.SetStringItem(x,6,u'%d' % row[1])
             self.lstCtrlAssociatedDatastream.SetItemData(x,row[0])
             chcItems.append("%s-(%d)" % (row[2], row[0]))
             self.points.append([self.currentColour, self.currentThickness,[row[6], row[7]],row[0],False])
@@ -418,7 +421,7 @@ class imgAssociation(wx.Dialog):
             if row[4]==None:
                 row[4]=""
             self.listCtrlDatastream.SetStringItem(x,1,row[1])
-            self.listCtrlDatastream.SetStringItem(x,2,row[4])
+            self.listCtrlDatastream.SetStringItem(x,2,str(row[8]))
             self.listCtrlDatastream.SetStringItem(x,3,row[2])
             self.listCtrlDatastream.SetItemData(x,row[3])
             x = x + 1
@@ -431,7 +434,7 @@ class imgAssociation(wx.Dialog):
             if row[4]==None:
                 row[4]=""
             self.listCtrlDatastream.SetStringItem(x,1,row[1])
-            self.listCtrlDatastream.SetStringItem(x,2,row[4])
+            self.listCtrlDatastream.SetStringItem(x,2,str(row[8]))
             self.listCtrlDatastream.SetStringItem(x,3,row[2])
             self.listCtrlDatastream.SetItemData(x,row[3])
             x = x + 1
@@ -560,35 +563,40 @@ class imgAssociation(wx.Dialog):
         return retVal
     
     def OnBtnRemoveButton(self, event):
-        chcItems = self.chcPoints.GetItems()
-        idds = self.lstCtrlAssociatedDatastream.GetItemData(self.selectedAssDsIndex)
-        sTitle = self.lstCtrlAssociatedDatastream.GetItem(self.selectedAssDsIndex,0).GetText()
-        sSelected = "%s-(%d)" % (sTitle, idds)
+        idxes, ids = self._getSelectedIndices(self.lstCtrlAssociatedDatastream)
+        idelCount = 0
+        delItems = []
         newItems = []
-        for chcItem in chcItems:
-            if chcItem==sSelected:
-                continue
-            newItems.append(chcItem)
-        self.chcPoints.SetItems(newItems)
-        if len(newItems) > 0:
+        for idx in idxes:
+            delIds = idx - idelCount
+            idds = self.lstCtrlAssociatedDatastream.GetItemData(delIds)
+            self.delDatastream(idds)
+            sTitle = self.lstCtrlAssociatedDatastream.GetItem(delIds,0).GetText()
+            self.lstCtrlAssociatedDatastream.DeleteItem(delIds)
+            sSelected = "%s-(%d)" % (sTitle, idds)
+            for chcItem in self.chcPoints.GetItems():
+                if chcItem==sSelected:
+                    delItems.append(chcItem)
+            idelCount = idelCount + 1
+            idpos = 0
+            for point in self.points:
+                if point[3]== idds:
+                    self.points.pop(idpos)
+                    break;
+                idpos = idpos + 1
+        for delItem in delItems:
+           delNum = self.chcPoints.FindString(delItem)
+           self.chcPoints.Delete(delNum)
+        if len(self.chcPoints.GetItems()) > 0:
             self.chcPoints.SetSelection(0)
-        self.delDatastream()
-        self.lstCtrlAssociatedDatastream.DeleteItem(self.selectedAssDsIndex)
-        idpos = 0
-        for point in self.points:
-            if point[3]== idds:
-                self.points.pop(idpos)
-                break;
-            idpos = idpos + 1
         self.UpdatePointsOnBitmap()
-        event.Skip()
 
     def OnListCtrlDatastreamLeftDclick(self, event):
         self.putNewDatastream()
         event.Skip()
     
     
-    def delDatastream(self):
+    def delDatastream(self,selectedAssDsID):
         db_conn = sqlite3.connect(self.database)
         db_cur = db_conn.cursor()
         sQuery = """
@@ -596,36 +604,63 @@ class imgAssociation(wx.Dialog):
             nrs_datastream_picture  
             WHERE
             id = %d
-        """ % self.selectedAssDsID
+        """ % selectedAssDsID
         retVal = db_cur.execute(sQuery)
         db_conn.commit()      
         db_conn.close()
         return retVal
         
-        
+    def _findExistingDS(self, dsid, imgFileName):
+        return_value = {}
+        bFound = False
+        db_conn = sqlite3.connect(self.database)
+        db_cur = db_conn.cursor()
+        sQuery = """
+            SELECT id, datastream_id, filename, filepath,  px, py, description
+            FROM nrs_datastream_picture
+            WHERE datastream_id = %d AND filename = '%s'
+        """ % (dsid, imgFileName)
+        retVal = db_cur.execute(sQuery)
+        row = retVal.fetchone()  
+        if row:
+            bFound = True
+            return_value = {'id':row[0],'datastream_id':row[1],'filename':row[2],'filepath':row[3],'px':row[4],'py':row[5],'description':row[6]} 
+        db_conn.close()
+        return bFound, return_value
+    
     def putNewDatastream(self):
-        itCount = self.lstCtrlAssociatedDatastream.GetItemCount()
-        retVal = self.AddDatastreamPicture()
-        self.lstCtrlAssociatedDatastream.InsertStringItem(itCount, self.selected_available_ds_title)
-        self.lstCtrlAssociatedDatastream.SetStringItem(itCount,1, self.selected_available_ds_frequency )
-        self.lstCtrlAssociatedDatastream.SetStringItem(itCount,2, self.imgFileName )
-        self.lstCtrlAssociatedDatastream.SetStringItem(itCount,3, u'%s' % self.txtDescrizione.GetValue() )  
-        self.lstCtrlAssociatedDatastream.SetItemData(itCount,retVal)
-        chcItems = self.chcPoints.GetItems()
-        chcItems.append("%s-(%d)" % (self.selected_available_ds_title, retVal))
-        self.chcPoints.SetItems(chcItems)
-        if len(chcItems) > 0:
-            self.chcPoints.SetSelection(len(chcItems)-1)
-        sSelected = self.chcPoints.GetStringSelection()
-        m = re.compile(r'-\((.*?)\)').search(sSelected)
-        sm = m.group(1)
-        id = int(sm)
-        data = self.GetDatastreamPicture(id)  
-        self.lstCtrlAssociatedDatastream.SetStringItem(itCount,4,u'%d' % data['px'])
-        self.lstCtrlAssociatedDatastream.SetStringItem(itCount,5,u'%d' % data['py'])
-        self.textClicked.SetValue(u'%d-%d' % (data['px'], data['py']))
-        # 0 => currentColour, 1 => currentThickness,2 => (px, py),3 => id, 4=>Selected(True)
-        self.points.append(["Red", self.currentThickness,[data['px'], data['py']],id,True])
+        idxes, ids = self._getSelectedIndices(self.listCtrlDatastream)
+        for idx in idxes:
+            itCount = self.lstCtrlAssociatedDatastream.GetItemCount()
+            id=self.listCtrlDatastream.GetItemData(idx)
+            bFound, retitem = self._findExistingDS(id,self.imgFileName)
+            if bFound:
+                continue
+            self.selected_available_ds_id = id
+            self.selected_available_ds_title = self.listCtrlDatastream.GetItem(idx,0).GetText()
+            self.selected_available_ds_frequency = self.listCtrlDatastream.GetItem(idx,2).GetText()
+            retVal = self.AddDatastreamPicture()
+            self.lstCtrlAssociatedDatastream.InsertStringItem(itCount, self.selected_available_ds_title)
+            self.lstCtrlAssociatedDatastream.SetStringItem(itCount,1, self.selected_available_ds_frequency )
+            self.lstCtrlAssociatedDatastream.SetStringItem(itCount,2, self.imgFileName )
+            self.lstCtrlAssociatedDatastream.SetStringItem(itCount,3, u'%s' % self.txtDescrizione.GetValue() )  
+            self.lstCtrlAssociatedDatastream.SetStringItem(itCount,6,u'%d' % id)
+            self.lstCtrlAssociatedDatastream.SetItemData(itCount,retVal)
+            chcItems = self.chcPoints.GetItems()
+            chcItems.append("%s-(%d)" % (self.selected_available_ds_title, retVal))
+            self.chcPoints.SetItems(chcItems)
+            if len(chcItems) > 0:
+                self.chcPoints.SetSelection(len(chcItems)-1)
+            sSelected = self.chcPoints.GetStringSelection()
+            m = re.compile(r'-\((.*?)\)').search(sSelected)
+            sm = m.group(1)
+            id = int(sm)
+            data = self.GetDatastreamPicture(id)  
+            self.lstCtrlAssociatedDatastream.SetStringItem(itCount,4,u'%d' % data['px'])
+            self.lstCtrlAssociatedDatastream.SetStringItem(itCount,5,u'%d' % data['py'])
+            self.textClicked.SetValue(u'%d-%d' % (data['px'], data['py']))
+            # 0 => currentColour, 1 => currentThickness,2 => (px, py),3 => id, 4=>Selected(True)
+            self.points.append(["Red", self.currentThickness,[data['px'], data['py']],id,True])
         self.UpdatePointsOnBitmap()
         
 
@@ -638,6 +673,7 @@ class imgAssociation(wx.Dialog):
         self.lstCtrlAssociatedDatastream.SetStringItem(self.selectedAssDsIndex,3,u'%s' % sDescr)
         self.lstCtrlAssociatedDatastream.SetStringItem(self.selectedAssDsIndex,4,u'%d' % data['px'])
         self.lstCtrlAssociatedDatastream.SetStringItem(self.selectedAssDsIndex,5,u'%d' % data['py'])
+        self.lstCtrlAssociatedDatastream.SetStringItem(self.selectedAssDsIndex,6,u'%d' % data['datastream_id'])
         # 0 => currentColour, 1 => currentThickness,2 => (px, py),3 => id, 4=>Selected(False)
         for point in self.points:
             if point[3]== self.selectedAssDsID:
@@ -779,9 +815,19 @@ class imgAssociation(wx.Dialog):
         myvalues = np.zeros(0,'f')
         rowList = self.LoadDatapoints(self.imgFileName,sAt_from, sAt_to)
         for row in rowList:
+            at_val = float(row[3])
+            const = row[4] #constant_value
+            lambda_val = float(row[5]) #lambda_value
+            first = row[6] #factor_value
+            second = row[7] #factor_value_2
+            sFormula = row[8]
+            delta_val = at_val - lambda_val
+            x = delta_val
+            #resVal = second*x*x + first*x + const
+            retVal = eval(sFormula)
             mysensors = np.append(mysensors,[[FW*row[1],H-FH*row[2]]],axis=0)
             #mysensors = np.append(mysensors,[[row[1],600-row[2]]],axis=0)
-            myvalues = np.append(myvalues,[row[3]],axis=0)
+            myvalues = np.append(myvalues,[retVal],axis=0)
         sMethod = self.chcInterpolation.GetStringSelection()
         m_interp_cubic = griddata(mysensors, myvalues, (gx, gy), method=sMethod)
         fig = plt.figure(dpi=200,facecolor='none')
@@ -822,11 +868,20 @@ class imgAssociation(wx.Dialog):
         self.SetCursor(mycur)
 
     def LoadDatapoints(self, sFilename, sAt_from, sAt_to):
+        #controllare formula danzi.tn@20140702
         db_conn = sqlite3.connect(self.database)
         db_cur = db_conn.cursor()
         sQuery = """
-            SELECT nrs_datastream.id, nrs_datastream_picture.px, nrs_datastream_picture.py,
-                   AVG(nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value) AS avg_value_at 
+            SELECT 
+            nrs_datastream.id, 
+            nrs_datastream_picture.px, 
+            nrs_datastream_picture.py,
+            AVG(value_at) AS avg_value_at  
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             FROM nrs_datastream_picture, nrs_datastream, nrs_datapoint
             WHERE
             nrs_datastream_picture.datastream_id = nrs_datastream.id
@@ -836,7 +891,15 @@ class imgAssociation(wx.Dialog):
             nrs_datastream_picture.filename = '%s'
             AND 
             nrs_datapoint.datetime_at <= '%s' AND nrs_datapoint.datetime_at >= '%s'
-            GROUP BY nrs_datastream.id, nrs_datastream_picture.px, nrs_datastream_picture.py
+            GROUP BY 
+            nrs_datastream.id, 
+            nrs_datastream_picture.px, 
+            nrs_datastream_picture.py
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             ORDER BY nrs_datastream_picture.py, nrs_datastream_picture.px
         """ % (sFilename, sAt_to, sAt_from)
         retVal = db_cur.execute(sQuery)
@@ -866,3 +929,22 @@ class imgAssociation(wx.Dialog):
     def OnRadioButton1Radiobutton(self, event):
         self.checkDsFilters()
         event.Skip()
+
+    def _getSelectedIndices( self, wxList, state =  wx.LIST_STATE_SELECTED):
+        indices = []
+        ids = []
+        lastFound = -1
+        while True:
+                index = wxList.GetNextItem(
+                        lastFound,
+                        wx.LIST_NEXT_ALL,
+                        state,
+                )
+                if index == -1:
+                        break
+                else:
+                        lastFound = index
+                        indices.append( index )
+                        id = wxList.GetItemData(index)
+                        ids.append( id )
+        return indices, ids

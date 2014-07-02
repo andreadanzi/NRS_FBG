@@ -11,9 +11,9 @@ Permettere di asssegnare sui file datastream di centraline diverse...perchè quel
 
 
 sws 18/06/2014
--cALCOLO DELLA MEDIA UTILIZZANDO LA FORMULA
--SELEZIONE MULTIPLA DEI DATASTREAM PER BUTTARLI SULLA SEZIONE
-- Gestire i file immagine (nrs_datastream_picture) indipendentemente da nodo/centralina, invece che su C:\ tramite file di configurazione
+-cALCOLO DELLA MEDIA UTILIZZANDO LA FORMULA OK
+-SELEZIONE MULTIPLA DEI DATASTREAM PER BUTTARLI SULLA SEZIONE OK
+- Gestire i file immagine (nrs_datastream_picture) indipendentemente da nodo/centralina, invece che su C:\ tramite file di configurazione OK
 - Togliere le vecchie centraline
 - Verificare impostazione indirizzo IP
 - Testare datapoints generati random con sezioni parziali in modo da vedere cosa vien fuori sulle sezioni verticali

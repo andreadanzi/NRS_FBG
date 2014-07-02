@@ -75,8 +75,8 @@ class Frame1(wx.Frame):
               width=-1)
         parent.InsertColumn(col=1, format=wx.LIST_FORMAT_LEFT,
               heading=u'Codice', width=-1)
-        parent.InsertColumn(col=2, format=wx.LIST_FORMAT_LEFT,
-              heading=u'Lunghezza', width=-1)
+        parent.InsertColumn(col=2, format=wx.LIST_FORMAT_LEFT, heading=u'CWL',
+              width=-1)
         parent.InsertColumn(col=3, format=wx.LIST_FORMAT_LEFT, heading=u'Data',
               width=-1)
 
@@ -111,7 +111,7 @@ class Frame1(wx.Frame):
     def _init_coll_notebook1_Pages(self, parent):
         # generated method, don't edit
 
-        parent.AddPage(imageId=0, page=self.panelEnv, select=True,
+        parent.AddPage(imageId=0, page=self.panelEnv, select=False,
               text=u'Environment')
         parent.AddPage(imageId=1, page=self.panelNode, select=False,
               text=u'Node')
@@ -119,7 +119,7 @@ class Frame1(wx.Frame):
               text=u'Datastream')
         parent.AddPage(imageId=3, page=self.panelDatapoint, select=False,
               text=u'Datapoint')
-        parent.AddPage(imageId=4, page=self.panel3, select=False,
+        parent.AddPage(imageId=4, page=self.panel3, select=True,
               text=u'Image Mapping')
 
     def _init_coll_lstDir_Columns(self, parent):
@@ -163,7 +163,7 @@ class Frame1(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_FRAME1, name='', parent=prnt,
-              pos=wx.Point(224, 135), size=wx.Size(990, 541),
+              pos=wx.Point(389, 131), size=wx.Size(990, 541),
               style=wx.DEFAULT_FRAME_STYLE, title=u'Import FBG')
         self._init_utils()
         self.SetClientSize(wx.Size(974, 503))
@@ -977,6 +977,7 @@ class Frame1(wx.Frame):
         self.LoadEnvDirs()
         self.databaseBrowseButton.SetValue(settings.database)
         self.CheckDB()
+        self.SelectDefaultItems()
         self.logger.info("NrsWXApp Init terminated")
     
     def setMyCursor(self, cur):
@@ -1064,7 +1065,10 @@ class Frame1(wx.Frame):
         if not os.path.exists(self.imgPath ):
             os.mkdir(self.imgPath )
         imgNewFilePath = os.path.join( self.imgPath , os.path.basename(imgFilePath) )
-        shutil.copy(imgFilePath , imgNewFilePath  )
+        if imgFilePath == imgNewFilePath:
+            imgNewFilePath = imgFilePath
+        else:
+            shutil.copy(imgFilePath , imgNewFilePath  )
         self.setImageToPreview(imgNewFilePath)
         self.imgFileName = os.path.basename(imgFilePath)
         self.imgFilePath = imgNewFilePath
@@ -1275,7 +1279,7 @@ class Frame1(wx.Frame):
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         sQuery = """
-            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at), nrs_datastream.nrs_node_id 
+            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at), nrs_datastream.nrs_node_id , lambda_value
             FROM nrs_datastream 
 			LEFT JOIN nrs_datapoint ON nrs_datapoint.nrs_datastream_id = nrs_datastream.id
             WHERE nrs_datastream.nrs_node_id = %d 
@@ -1295,7 +1299,7 @@ class Frame1(wx.Frame):
             if row[4]==None:
                 row[4]=""
             self.listCtrlDatastream.SetStringItem(x,1,row[1])
-            self.listCtrlDatastream.SetStringItem(x,2,row[4])
+            self.listCtrlDatastream.SetStringItem(x,2,str(row[8]))
             self.listCtrlDatastream.SetStringItem(x,3,row[2])
             self.listCtrlDatastream.SetItemData(x,row[3])
             if bFirst:
@@ -1325,7 +1329,7 @@ class Frame1(wx.Frame):
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         sQuery = """
-            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at), nrs_datastream.nrs_node_id 
+            SELECT title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title, MAX(datetime_at), MIN(datetime_at), nrs_datastream.nrs_node_id , nrs_datastream.lambda_value 
             FROM nrs_datastream 
 			LEFT JOIN nrs_datapoint ON nrs_datapoint.nrs_datastream_id = nrs_datastream.id
             GROUP BY title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title
@@ -1344,7 +1348,7 @@ class Frame1(wx.Frame):
             if row[4]==None:
                 row[4]=""
             self.listCtrlDatastream.SetStringItem(x,1,row[1])
-            self.listCtrlDatastream.SetStringItem(x,2,row[4])
+            self.listCtrlDatastream.SetStringItem(x,2,str(row[8]))
             self.listCtrlDatastream.SetStringItem(x,3,row[2])
             self.listCtrlDatastream.SetItemData(x,row[3])
             if bFirst:
@@ -1370,6 +1374,7 @@ class Frame1(wx.Frame):
 
 
     def LoadDistinctDatastreamUpdated2(self, node_id, from_date=None, to_date=None):
+        #controllare formula danzi.tn@20140702
         return_value = -99
         self.database_file = self.databaseBrowseButton.GetValue()
         settings.database = self.database_file
@@ -1382,60 +1387,55 @@ class Frame1(wx.Frame):
         if to_date!=None:
             sextra = sextra + " AND nrs_datapoint.datetime_at <= '%s'" % to_date
         sQuery = """
-            SELECT DISTINCT nrs_datastream.id, nrs_datastream.datastream_uid, max(nrs_datapoint.updated), 
-            AVG(nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value) AS avg_value_at,
+            SELECT DISTINCT 
+            nrs_datastream.id, 
+            nrs_datastream.datastream_uid, 
+            max(nrs_datapoint.updated), 
+            AVG(value_at) AS avg_value_at,
             COUNT(sample_no) as cnt_samples,
             nrs_datastream.title
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             FROM nrs_datastream, nrs_datapoint
             WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND nrs_datastream.nrs_node_id = %d AND %s
-            GROUP BY nrs_datastream.id, nrs_datastream.datastream_uid
+            GROUP BY 
+            nrs_datastream.id, 
+            nrs_datastream.datastream_uid,
+            nrs_datastream.title
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             ORDER BY nrs_datastream.datastream_uid
         """ % (node_id, sextra)
         retVal = db_cur.execute(sQuery)
         rows = retVal.fetchall()
-        x=0
+        xx=0
         for row in rows:
-            self.listCtrlDatapoint.InsertStringItem(x,row[5])
-            self.listCtrlDatapoint.SetStringItem(x,1,row[2])
-            self.listCtrlDatapoint.SetStringItem(x,2,u'%f'%row[3])
-            self.listCtrlDatapoint.SetStringItem(x,3,u'%d'%row[4])
-            self.listCtrlDatapoint.SetItemData(x,row[0])
-            x=x+1
-        db_conn.close()
-
-    def LoadDistinctDatastreamUpdated(self, node_id, sUpdated_date=None):
-        return_value = -99
-        self.database_file = self.databaseBrowseButton.GetValue()
-        settings.database = self.database_file
-        self.listCtrlDatapoint.DeleteAllItems()
-        db_conn = sqlite3.connect(settings.database)
-        db_cur = db_conn.cursor()
-        sextra = "1=1"
-        if sUpdated_date!=None:
-            sextra = "nrs_datapoint.updated='%s'" % sUpdated_date
-        sQuery = """
-            SELECT DISTINCT nrs_datastream.id, nrs_datastream.datastream_uid, nrs_datapoint.updated, 
-            AVG(nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value) AS avg_value_at,
-            COUNT(sample_no) as cnt_samples,
-            nrs_datastream.title
-            FROM nrs_datastream, nrs_datapoint
-            WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND nrs_datastream.nrs_node_id = %d AND %s
-            GROUP BY nrs_datastream.id, nrs_datastream.datastream_uid, nrs_datapoint.updated
-            ORDER BY nrs_datapoint.updated , nrs_datastream.datastream_uid
-        """ % (node_id, sextra)
-        retVal = db_cur.execute(sQuery)
-        rows = retVal.fetchall()
-        x=0
-        for row in rows:
-            self.listCtrlDatapoint.InsertStringItem(x,row[5])
-            self.listCtrlDatapoint.SetStringItem(x,1,row[2])
-            self.listCtrlDatapoint.SetStringItem(x,2,u'%f'%row[3])
-            self.listCtrlDatapoint.SetStringItem(x,3,u'%d'%row[4])
-            self.listCtrlDatapoint.SetItemData(x,row[0])
-            x=x+1
+            at_val = float(row[3])
+            const = row[6] #constant_value
+            lambda_val = float(row[7]) #lambda_value
+            first = row[8] #factor_value
+            second = row[9] #factor_value_2
+            sFormula = row[10]
+            delta_val = at_val - lambda_val
+            x = delta_val
+            #resVal = second*x*x + first*x + const
+            return_value = eval(sFormula)
+            self.listCtrlDatapoint.InsertStringItem(xx,row[5])
+            self.listCtrlDatapoint.SetStringItem(xx,1,row[2])
+            self.listCtrlDatapoint.SetStringItem(xx,2,u'%f'%return_value)
+            self.listCtrlDatapoint.SetStringItem(xx,3,u'%d'%row[4])
+            self.listCtrlDatapoint.SetItemData(xx,row[0])
+            xx=xx+1
         db_conn.close()
     
     def LoadDatapointAvg2(self, datastream_id, date_from=None, date_to=None):
+        #controllare formula danzi.tn@20140702
         return_value = -99
         self.database_file = self.databaseBrowseButton.GetValue()
         settings.database = self.database_file
@@ -1447,41 +1447,42 @@ class Frame1(wx.Frame):
         if date_to!=None:
             sextra = sextra + " AND nrs_datapoint.datetime_at <= '%s'" % date_to
         sQuery = """
-            SELECT AVG(nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value) AS avg_value_at 
+            SELECT 
+            AVG(value_at) AS avg_value_at 
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             FROM  nrs_datastream, nrs_datapoint
             WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND 
             nrs_datastream_id = %d AND %s
+            GROUP BY 
+            nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
         """ % (datastream_id, sextra)
         retVal = db_cur.execute(sQuery)
         row = retVal.fetchone()
         if row:
-            return_value = row[0]
-        db_conn.close()
-        return return_value
-    
-    def LoadDatapointAvg(self, datastream_id, updated):
-        return_value = -99
-        self.database_file = self.databaseBrowseButton.GetValue()
-        settings.database = self.database_file
-        db_conn = sqlite3.connect(settings.database)
-        db_cur = db_conn.cursor()
-        sQuery = """
-            SELECT AVG(nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value) AS avg_value_at 
-            FROM  nrs_datastream, nrs_datapoint
-            WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND 
-            nrs_datastream_id = %d AND nrs_datapoint.updated = '%s'
-        """ % (datastream_id, updated)
-        retVal = db_cur.execute(sQuery)
-        row = retVal.fetchone()
-        if row:
-            return_value = row[0]
+            at_val = float(row[0])
+            const = row[1] #constant_value
+            lambda_val = float(row[2]) #lambda_value
+            first = row[3] #factor_value
+            second = row[4] #factor_value_2
+            sFormula = row[5]
+            delta_val = at_val - lambda_val
+            x = delta_val
+            #resVal = second*x*x + first*x + const
+            return_value = eval(sFormula)
         db_conn.close()
         return return_value
 
     def LoadDatapoints2(self, datastream_id, avg_val, date_from=None, date_to=None):
+        # controllare formula danzi.tn@20140702
         return_value = -99
-        self.database_file = self.databaseBrowseButton.GetValue()
-        settings.database = self.database_file
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
         sextra = "1=1"
@@ -1490,9 +1491,7 @@ class Frame1(wx.Frame):
         if date_to!=None:
             sextra = sextra + " AND nrs_datapoint.datetime_at <= '%s'" % date_to
         sQuery = """
-            SELECT DISTINCT 
-            nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value AS calc_value_at 
-            , datetime_at
+            SELECT DISTINCT datetime_at
             ,  sample_no 
             , value_at
             , nrs_datastream.constant_value
@@ -1518,19 +1517,19 @@ class Frame1(wx.Frame):
             tmpavg = 0
         for row in rows:
             xx = xx + 1
-            at_val = float(row[3])
-            const = row[4]
-            lambda_val = float(row[5])
-            first = row[6]
-            second = row[7]
-            sFormula = row[8]
+            at_val = float(row[2])
+            const = row[3]
+            lambda_val = float(row[4])
+            first = row[5]
+            second = row[6]
+            sFormula = row[7]
             delta_val = at_val - lambda_val
             x = delta_val
             #resVal = second*x*x + first*x + const
             resVal = eval(sFormula)
             #val.append(row[0])
             val.append(resVal)
-            sDate = row[1]
+            sDate = row[0]
             dtt=datetime.strptime(sDate,'%Y%m%d%H%M%S%f')
             sAt_from = dtt.strftime('%Y-%m-%d %H:%M:%S')
             #x = int(time.mktime(dtt.timetuple()))
@@ -1541,38 +1540,6 @@ class Frame1(wx.Frame):
         db_conn.close()
         return_value={'val':val,'dta':dta,'lbl':lbl,'avg':avg,'datetime':ddatetime}
         return return_value   
-
-    def LoadDatapoints(self, datastream_id, updated,avg_val):
-        return_value = -99
-        self.database_file = self.databaseBrowseButton.GetValue()
-        settings.database = self.database_file
-        db_conn = sqlite3.connect(settings.database)
-        db_cur = db_conn.cursor()
-        sQuery = """
-            SELECT nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value AS calc_value_at , datetime_at,  sample_no 
-            FROM  nrs_datastream, nrs_datapoint
-            WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND 
-            nrs_datastream_id = %d AND nrs_datapoint.updated = '%s'
-            ORDER BY  datetime_at
-        """ % (datastream_id, updated)
-        retVal = db_cur.execute(sQuery)
-        rows = retVal.fetchall()
-        x=0
-        val=[]
-        dta=[]
-        lbl=[]
-        avg=[]
-        for row in rows:
-            val.append(row[0])
-            sDate = row[1]
-            dtt=datetime.strptime(sDate,'%Y%m%d%H%M%S%f')
-            sAt_from = dtt.strftime('%Y-%m-%d %H:%M:%S')
-            dta.append(sAt_from)
-            lbl.append(row[2])
-            avg.append(avg_val)
-        db_conn.close()
-        return_value={'val':val,'dta':dta,'lbl':lbl,'avg':avg}
-        return return_value    
 
     def GetEnv(self,id):
         return_value = {}
@@ -1968,53 +1935,6 @@ class Frame1(wx.Frame):
         self.ProcessImage(idx)
         event.Skip()
 
-    def ProcessImageDateTime(self,idx):
-        mycur = self.GetCursor();
-        self.setMyCursor(self.stockCursor1)
-        id=self.listCtrlDatapoint.GetItemData(idx)
-        updated=self.listCtrlDatapoint.GetItem(idx,1).GetText()  
-        sAt_from , sAt_to = self.GetDatapointDatetimeLimits()
-        valChck = self.chkDataFilter.IsChecked()
-        if not valChck:
-            sAt_from = None
-            sAt_to = None
-        avgVal = self.LoadDatapointAvg2(id, sAt_from , sAt_to)
-        retVal = self.LoadDatapoints2(id, avgVal, sAt_from , sAt_to)
-        if avgVal== None:
-            self.txtAvg.SetValue(u'ND')
-        else:
-            self.txtAvg.SetValue(u'%f' % avgVal)
-        x1 = retVal['lbl']
-        y1 = retVal['avg']
-        x2 = retVal['lbl']
-        y2 = retVal['val']
-        plt.clf()
-        plt.tick_params(axis='y', labelsize=8)
-        plt.tick_params(axis='x', labelsize=8,labelleft=True)
-        ax = plt.gca()
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y %H:%M:%S'))
-        plt.plot(retVal['datetime'], y1,'r--')
-        plt.plot(retVal['datetime'], y2,'b-')
-        plt.grid(which='major', axis='x')
-        dt=datetime.strptime(updated,u'%Y-%m-%d %H:%M:%S')
-        sAt = dt.strftime('%Y%m%d%H%M%S')    
-        imagefname=os.path.join(self.EnvDir,"%d_%s_plot.png" % (id,sAt))
-        plt.savefig(imagefname,format='png')
-        Img = wx.Image(imagefname, wx.BITMAP_TYPE_PNG)
-        self.wximg = Img
-        W = Img.GetWidth()
-        H = Img.GetHeight()
-        if W > H:
-            NewW = 320
-            NewH = 320 * H / W
-        else:
-            NewH = 320
-            NewW = 320 * W / H
-        Img = Img.Scale(NewW,NewH)
-        self.imgChart.SetBitmap(wx.BitmapFromImage(Img))
-        self.Refresh()
-        self.setMyCursor(mycur)
-
     def ProcessImage(self,idx):
         mycur = self.GetCursor();
         self.setMyCursor(self.stockCursor1)
@@ -2106,6 +2026,7 @@ class Frame1(wx.Frame):
         event.Skip()
 
     def ExportGroupedDatapoints(self, node_id, datastream_id, datetime_from,datetime_to):
+        #controllare formula danzi.tn@20140702
         sFormat = self.chkFormat.GetStringSelection()
         if sFormat=="aaaa-mm-gg":
             sFormat = "%Y-%m-%d %H:%M:%S"
@@ -2120,7 +2041,10 @@ class Frame1(wx.Frame):
         db_cur = db_conn.cursor()
         
         sQueryDates = """
-            SELECT substr(datetime_at,0,9) as date_at, count(value_at) as cnt_samples , max( nrs_datapoint.updated) AS dp_updated
+            SELECT 
+            substr(datetime_at,0,9) as date_at, 
+            count(value_at) as cnt_samples , 
+            max( nrs_datapoint.updated) AS dp_updated
             FROM  nrs_datastream, nrs_datapoint
             WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND
             nrs_datapoint.nrs_node_id = %d AND nrs_datapoint.datetime_at <= '%s' AND nrs_datapoint.datetime_at >= '%s' 
@@ -2142,12 +2066,27 @@ class Frame1(wx.Frame):
             j=j+1
         
         sQueryGrouped = """
-            SELECT nrs_datastream.title AS ds_title, AVG(nrs_datastream.constant_value+(value_at - nrs_datastream.lambda_value)/nrs_datastream.factor_value) as avg_value, 
-            substr(datetime_at,0,9) as date_at, count(value_at) as cnt_samples , max(nrs_datapoint.updated) AS dp_updated
+            SELECT nrs_datastream.title AS ds_title, 
+            AVG(value_at) as avg_value, 
+            substr(datetime_at,0,9) as date_at, 
+            count(value_at) as cnt_samples , 
+            max(nrs_datapoint.updated) AS dp_updated
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             FROM  nrs_datastream, nrs_datapoint
             WHERE nrs_datapoint.nrs_datastream_id = nrs_datastream.id AND
             nrs_datapoint.nrs_node_id = %d AND nrs_datapoint.datetime_at <= '%s' AND nrs_datapoint.datetime_at >= '%s' 
-            GROUP BY ds_title, date_at
+            GROUP BY 
+            ds_title, 
+            date_at
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
             ORDER BY ds_title, date_at ASC
         """ % (node_id, datetime_to,datetime_from)
         
@@ -2170,8 +2109,18 @@ class Frame1(wx.Frame):
                 sLastDs = sTitle
                 bFirst = False
             dtt=datetime.strptime(row[2],'%Y%m%d')
-            sAt =dtt.strftime(sFormat)  
-            sValue_at = "%f" % row[1]
+            sAt = dtt.strftime(sFormat) 
+            at_val = float(row[1])
+            const = row[5] #constant_value
+            lambda_val = float(row[6]) #lambda_value
+            first = row[7] #factor_value
+            second = row[8] #factor_value_2
+            sFormula = row[9]
+            delta_val = at_val - lambda_val
+            x = delta_val
+            #resVal = second*x*x + first*x + const
+            retVal = eval(sFormula) 
+            sValue_at = "%f" % retVal
             if self.rbtComma.GetValue():
                 sValue_at = sValue_at.replace('.',',')
             if sTitle != sLastDs:                    
@@ -2289,7 +2238,7 @@ class Frame1(wx.Frame):
     
     def LoadDatastreamPictures(self):
         sQuery = """
-            SELECT nrs_datastream_picture.id, nrs_datastream.id, nrs_datastream.title, nrs_datastream_picture.filename, nrs_datastream_picture.description, nrs_datastream.factor_title, nrs_datastream_picture.px, nrs_datastream_picture.py 
+            SELECT nrs_datastream_picture.id, nrs_datastream.id, nrs_datastream.title, nrs_datastream_picture.filename, nrs_datastream_picture.description, nrs_datastream.factor_title, nrs_datastream_picture.px, nrs_datastream_picture.py , nrs_datastream.lambda_value
             FROM nrs_datastream_picture, nrs_datastream
             WHERE
             nrs_datastream_picture.datastream_id = nrs_datastream.id
@@ -2899,13 +2848,31 @@ class Frame1(wx.Frame):
         event.Skip()
     
     
-    def _getSelectedIndices( self, wxList, state =  wxLIST_STATE_SELECTED):
+    def SelectDefaultItems(self):
+        iEnvCount = self.listCtrlEnv.GetItemCount()
+        iNodeCount = self.listCtrlNode.GetItemCount()
+        sFirstNodeCode = settings.environment_name + settings.first_node
+        iEnv = 0
+        while iEnv < iEnvCount:
+            itemEnvData = self.listCtrlEnv.GetItem(iEnv,1).GetText()
+            if itemEnvData == settings.environment_name:
+                self.listCtrlEnv.Select(iEnv)
+            iEnv = iEnv +1
+        iNode = 0
+        while iNode < iNodeCount:
+            itemNodeData = self.listCtrlNode.GetItem(iNode,1).GetText()
+            if itemNodeData == sFirstNodeCode:
+                self.listCtrlNode.Select(iNode)
+            iNode = iNode +1
+    
+    
+    def _getSelectedIndices( self, wxList, state =  wx.LIST_STATE_SELECTED):
         indices = []
         lastFound = -1
         while True:
                 index = wxList.GetNextItem(
                         lastFound,
-                        wxLIST_NEXT_ALL,
+                        wx.LIST_NEXT_ALL,
                         state,
                 )
                 if index == -1:
