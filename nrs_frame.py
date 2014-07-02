@@ -1,6 +1,7 @@
 #Boa:Frame:Frame1
 
 import wx
+import random
 import wx.lib.filebrowsebutton, shutil, sqlite3, time, os, csv
 import settings
 import logging, os, stat
@@ -13,6 +14,7 @@ from sets import Set
 from GibeToNrsWin32_new import GibeToNrs
 from scpi_client import SCPICli
 from datetime import datetime
+from datetime import timedelta
 from glob import *
 from wxPython.wx import *
 
@@ -23,10 +25,10 @@ def create(parent):
  wxID_FRAME1BTNCANELLATUTTO, wxID_FRAME1BTNCLOSE, wxID_FRAME1BTNDELETEADMIN, 
  wxID_FRAME1BTNEXPORT, wxID_FRAME1BTNEXPORTFILE, wxID_FRAME1BTNIMPORTA, 
  wxID_FRAME1BTNIMPORTSCHE, wxID_FRAME1BTNIPAD, wxID_FRAME1BTNLISTA, 
- wxID_FRAME1BTNSAVEPERI_SAM, wxID_FRAME1BTNTEST, wxID_FRAME1BTNUPDATECODE, 
- wxID_FRAME1BUTTONDELETE, wxID_FRAME1BUTTONSAVE, wxID_FRAME1CHECKBOX1, 
- wxID_FRAME1CHECKBOX2, wxID_FRAME1CHKALLDS, wxID_FRAME1CHKBYNODE, 
- wxID_FRAME1CHKDATAFILTER, wxID_FRAME1CHKFORMAT, 
+ wxID_FRAME1BTNRANDOMGEN, wxID_FRAME1BTNSAVEPERI_SAM, wxID_FRAME1BTNTEST, 
+ wxID_FRAME1BTNUPDATECODE, wxID_FRAME1BUTTONDELETE, wxID_FRAME1BUTTONSAVE, 
+ wxID_FRAME1CHECKBOX1, wxID_FRAME1CHECKBOX2, wxID_FRAME1CHKALLDS, 
+ wxID_FRAME1CHKBYNODE, wxID_FRAME1CHKDATAFILTER, wxID_FRAME1CHKFORMAT, 
  wxID_FRAME1DATABASEBROWSEBUTTON, wxID_FRAME1DATEFROM, 
  wxID_FRAME1DATEPICKERCTRL1, wxID_FRAME1DATEPICKERCTRL2, wxID_FRAME1DATETO, 
  wxID_FRAME1DTFROM, wxID_FRAME1DTTO, wxID_FRAME1ENVNOME, 
@@ -40,31 +42,32 @@ def create(parent):
  wxID_FRAME1PARAMETRI, wxID_FRAME1PNLCENTRALINA, wxID_FRAME1PNLSCPICONF, 
  wxID_FRAME1PNLTEMPDIR, wxID_FRAME1RBTCOMMA, wxID_FRAME1RBTPOINT, 
  wxID_FRAME1STATICBOX1, wxID_FRAME1STATICBOX2, wxID_FRAME1STATICBOX4, 
- wxID_FRAME1STATICBOX5, wxID_FRAME1STATICLINE1, wxID_FRAME1STATICTEXT1, 
- wxID_FRAME1STATICTEXT10, wxID_FRAME1STATICTEXT11, wxID_FRAME1STATICTEXT12, 
- wxID_FRAME1STATICTEXT13, wxID_FRAME1STATICTEXT14, wxID_FRAME1STATICTEXT15, 
- wxID_FRAME1STATICTEXT16, wxID_FRAME1STATICTEXT17, wxID_FRAME1STATICTEXT18, 
- wxID_FRAME1STATICTEXT19, wxID_FRAME1STATICTEXT2, wxID_FRAME1STATICTEXT20, 
- wxID_FRAME1STATICTEXT21, wxID_FRAME1STATICTEXT22, wxID_FRAME1STATICTEXT23, 
- wxID_FRAME1STATICTEXT24, wxID_FRAME1STATICTEXT25, wxID_FRAME1STATICTEXT26, 
- wxID_FRAME1STATICTEXT3, wxID_FRAME1STATICTEXT4, wxID_FRAME1STATICTEXT5, 
- wxID_FRAME1STATICTEXT6, wxID_FRAME1STATICTEXT7, wxID_FRAME1STATICTEXT8, 
- wxID_FRAME1STATICTEXT9, wxID_FRAME1STATICTEXTMESSAGE, 
- wxID_FRAME1TEXTCTRLCANTIERE, wxID_FRAME1TXTAVG, wxID_FRAME1TXTCH, 
- wxID_FRAME1TXTCONFHH, wxID_FRAME1TXTCONFMM, wxID_FRAME1TXTCONFSAMPLES, 
- wxID_FRAME1TXTCONFSS, wxID_FRAME1TXTCONST, wxID_FRAME1TXTCTRLCENTRALINA, 
- wxID_FRAME1TXTDEN, wxID_FRAME1TXTDSCODE, wxID_FRAME1TXTDSLEN, 
- wxID_FRAME1TXTDSTITLE, wxID_FRAME1TXTENVCOD, wxID_FRAME1TXTENVLOCATION, 
- wxID_FRAME1TXTENVNODE, wxID_FRAME1TXTENVTITLE, wxID_FRAME1TXTFORMULA, 
- wxID_FRAME1TXTHH, wxID_FRAME1TXTHHFROM, wxID_FRAME1TXTIDEN, wxID_FRAME1TXTIP, 
- wxID_FRAME1TXTLAMBDA, wxID_FRAME1TXTMMFROM, wxID_FRAME1TXTMMTO, 
- wxID_FRAME1TXTNODECODE, wxID_FRAME1TXTNODEDATASTREAM, wxID_FRAME1TXTNODEIP, 
- wxID_FRAME1TXTNODENAME, wxID_FRAME1TXTPERIH, wxID_FRAME1TXTPERIM, 
+ wxID_FRAME1STATICBOX5, wxID_FRAME1STATICLINE1, wxID_FRAME1STATICLINE2, 
+ wxID_FRAME1STATICTEXT1, wxID_FRAME1STATICTEXT10, wxID_FRAME1STATICTEXT11, 
+ wxID_FRAME1STATICTEXT12, wxID_FRAME1STATICTEXT13, wxID_FRAME1STATICTEXT14, 
+ wxID_FRAME1STATICTEXT15, wxID_FRAME1STATICTEXT16, wxID_FRAME1STATICTEXT17, 
+ wxID_FRAME1STATICTEXT18, wxID_FRAME1STATICTEXT19, wxID_FRAME1STATICTEXT2, 
+ wxID_FRAME1STATICTEXT20, wxID_FRAME1STATICTEXT21, wxID_FRAME1STATICTEXT22, 
+ wxID_FRAME1STATICTEXT23, wxID_FRAME1STATICTEXT24, wxID_FRAME1STATICTEXT25, 
+ wxID_FRAME1STATICTEXT26, wxID_FRAME1STATICTEXT27, wxID_FRAME1STATICTEXT3, 
+ wxID_FRAME1STATICTEXT4, wxID_FRAME1STATICTEXT5, wxID_FRAME1STATICTEXT6, 
+ wxID_FRAME1STATICTEXT7, wxID_FRAME1STATICTEXT8, wxID_FRAME1STATICTEXT9, 
+ wxID_FRAME1STATICTEXTMESSAGE, wxID_FRAME1TEXTCTRLCANTIERE, wxID_FRAME1TXTAVG, 
+ wxID_FRAME1TXTCH, wxID_FRAME1TXTCONFHH, wxID_FRAME1TXTCONFMM, 
+ wxID_FRAME1TXTCONFSAMPLES, wxID_FRAME1TXTCONFSS, wxID_FRAME1TXTCONST, 
+ wxID_FRAME1TXTCTRLCENTRALINA, wxID_FRAME1TXTDEN, wxID_FRAME1TXTDSCODE, 
+ wxID_FRAME1TXTDSLEN, wxID_FRAME1TXTDSTITLE, wxID_FRAME1TXTENVCOD, 
+ wxID_FRAME1TXTENVLOCATION, wxID_FRAME1TXTENVNODE, wxID_FRAME1TXTENVTITLE, 
+ wxID_FRAME1TXTFORMULA, wxID_FRAME1TXTHH, wxID_FRAME1TXTHHFROM, 
+ wxID_FRAME1TXTIDEN, wxID_FRAME1TXTIP, wxID_FRAME1TXTLAMBDA, 
+ wxID_FRAME1TXTMMFROM, wxID_FRAME1TXTMMTO, wxID_FRAME1TXTNODECODE, 
+ wxID_FRAME1TXTNODEDATASTREAM, wxID_FRAME1TXTNODEIP, wxID_FRAME1TXTNODENAME, 
+ wxID_FRAME1TXTNUMRANDOM, wxID_FRAME1TXTPERIH, wxID_FRAME1TXTPERIM, 
  wxID_FRAME1TXTPERIS, wxID_FRAME1TXTPORT1, wxID_FRAME1TXTPORT2, 
  wxID_FRAME1TXTPORTINPUT, wxID_FRAME1TXTPORTOUTPUT, wxID_FRAME1TXTSAMP, 
  wxID_FRAME1TXTSECOND, wxID_FRAME1TXTSSFROM, wxID_FRAME1TXTSSTO, 
  wxID_FRAME1TXTSTATUS, wxID_FRAME1WORKINGDIRBROWSEBUTTON, 
-] = [wx.NewId() for _init_ctrls in range(130)]
+] = [wx.NewId() for _init_ctrls in range(134)]
 
 class Frame1(wx.Frame):
 
@@ -113,13 +116,13 @@ class Frame1(wx.Frame):
 
         parent.AddPage(imageId=0, page=self.panelEnv, select=False,
               text=u'Environment')
-        parent.AddPage(imageId=1, page=self.panelNode, select=False,
+        parent.AddPage(imageId=1, page=self.panelNode, select=True,
               text=u'Node')
         parent.AddPage(imageId=2, page=self.panelDatastream, select=False,
               text=u'Datastream')
         parent.AddPage(imageId=3, page=self.panelDatapoint, select=False,
               text=u'Datapoint')
-        parent.AddPage(imageId=4, page=self.panel3, select=True,
+        parent.AddPage(imageId=4, page=self.panel3, select=False,
               text=u'Image Mapping')
 
     def _init_coll_lstDir_Columns(self, parent):
@@ -163,7 +166,7 @@ class Frame1(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_FRAME1, name='', parent=prnt,
-              pos=wx.Point(389, 131), size=wx.Size(990, 541),
+              pos=wx.Point(189, 177), size=wx.Size(990, 541),
               style=wx.DEFAULT_FRAME_STYLE, title=u'Import FBG')
         self._init_utils()
         self.SetClientSize(wx.Size(974, 503))
@@ -852,7 +855,7 @@ class Frame1(wx.Frame):
 
         self.pnlScpiConf = wx.Panel(id=wxID_FRAME1PNLSCPICONF,
               name=u'pnlScpiConf', parent=self.panelNode, pos=wx.Point(8, 304),
-              size=wx.Size(304, 72), style=wx.TAB_TRAVERSAL)
+              size=wx.Size(304, 64), style=wx.TAB_TRAVERSAL)
 
         self.staticText25 = wx.StaticText(id=wxID_FRAME1STATICTEXT25,
               label=u'Periodo H:M:S', name='staticText25',
@@ -945,6 +948,26 @@ class Frame1(wx.Frame):
               label=u'Canale', name='staticText26', parent=self.panelDatastream,
               pos=wx.Point(232, 224), size=wx.Size(34, 16), style=0)
 
+        self.btnRandomGen = wx.Button(id=wxID_FRAME1BTNRANDOMGEN,
+              label=u'Genera Random', name=u'btnRandomGen',
+              parent=self.panelNode, pos=wx.Point(16, 408), size=wx.Size(96,
+              23), style=0)
+        self.btnRandomGen.Bind(wx.EVT_BUTTON, self.OnBtnRandomGenButton,
+              id=wxID_FRAME1BTNRANDOMGEN)
+
+        self.staticLine2 = wx.StaticLine(id=wxID_FRAME1STATICLINE2,
+              name='staticLine2', parent=self.panelNode, pos=wx.Point(9, 392),
+              size=wx.Size(311, 2), style=0)
+
+        self.txtNumRandom = wx.TextCtrl(id=wxID_FRAME1TXTNUMRANDOM,
+              name=u'txtNumRandom', parent=self.panelNode, pos=wx.Point(120,
+              408), size=wx.Size(56, 21), style=0, value=u'')
+
+        self.staticText27 = wx.StaticText(id=wxID_FRAME1STATICTEXT27,
+              label=u'...n\xb0 totale di campioni', name='staticText27',
+              parent=self.panelNode, pos=wx.Point(184, 413), size=wx.Size(109,
+              13), style=0)
+
         self._init_coll_notebook1_Pages(self.notebook1)
 
         self._init_sizers()
@@ -1013,12 +1036,12 @@ class Frame1(wx.Frame):
         event.Skip()
         
     def run_main(self):
-        self.logger.info("GibeNRSApp Started on %s" % settings.gibeimportfolder_path)      
-        for item in os.listdir(settings.gibeimportfolder_path):
-            if os.path.isdir(settings.gibeimportfolder_path+"/"+item) == True:
-        	  csv_folder = settings.gibeimportfolder_path+"/"+item
-        	  gibe2nrs = GibeToNrs(self.e_uid,item,csv_folder,self.logger)
-        	  gibe2nrs.run()
+        self.logger.info("GibeNRSApp Started on %s" % settings.gibeimportfolder_path)
+        item = self.txtCtrlCentralina.GetValue()
+        if os.path.isdir(settings.gibeimportfolder_path+"/"+item) == True:
+          csv_folder = settings.gibeimportfolder_path+"/"+item
+          gibe2nrs = GibeToNrs(self.e_uid,item,csv_folder,self.logger)
+          gibe2nrs.run()
 
     def LoadFilenames(self,nodeId):
         bFilterNodeIsChecked = self.chkByNode.IsChecked();
@@ -2904,3 +2927,68 @@ class Frame1(wx.Frame):
         for item in items:
             self.updateDatastreamUid(item)
         self.listCtrlDatastream.Select(indices[0])
+
+    def OnBtnRandomGenButton(self, event):
+        nRandom = int(self.txtNumRandom.GetValue())
+        nHH = int(self.txtConfHH.GetValue())
+        nMM = int(self.txtConfMM.GetValue())
+        nSS = int(self.txtConfSS.GetValue())
+        nSamples = int(self.txtConfSamples.GetValue())
+        fRandom = float(nRandom)
+        fSamples= (nSamples)
+        fRate = fRandom / fSamples
+        nTotSec = nHH*3600+nMM*60+nSS
+        self.Info("Saranno necessarie %d rilevazioni di %d campioni ogni %d secondi" % (fRate,fSamples, nTotSec))
+        iCount = 1
+        dt_now = datetime.now()
+        s_date_now = dt_now.strftime('%d/%m/%Y') #%H%M%S%f
+        delta_1 = timedelta(seconds=1)
+        delta_t = timedelta(seconds=nTotSec)      
+        db_conn = sqlite3.connect(settings.database)
+        db_cur = db_conn.cursor()
+        sQuery = """
+            SELECT   nrs_datastream.title
+            , nrs_datastream.constant_value
+            , nrs_datastream.lambda_value
+            , nrs_datastream.factor_value
+            , nrs_datastream.factor_value_2
+            , nrs_datastream.ds_formula
+            , nrs_datastream.ch
+            FROM nrs_datastream 
+            WHERE nrs_datastream.nrs_node_id = %d 
+            ORDER BY  ch , nrs_datastream.lambda_value 
+        """ % self.nodeselected_id
+        retVal = db_cur.execute(sQuery)
+        rows = retVal.fetchall()
+        db_conn.close()
+        bulk_export_rows = []
+        while nRandom >= iCount:
+            if iCount%(nSamples+1) == 0:
+                dt_now = dt_now + delta_t
+            else:
+                dt_now = dt_now + delta_1
+            sTmpVal = ""
+            csvrow = []
+            csvrow.append(s_date_now)
+            csvrow.append(dt_now.strftime('%H:%M:%S'))
+            for row in rows:
+                fTemp = random.uniform(19.8,27.5)
+                const = float(row[1]) #constant_value
+                lambda_val = float(row[2]) #lambda_value
+                first = float(row[3]) #factor_value
+                second = float(row[4]) #factor_value_2
+                return_value = (fTemp - const) + first*lambda_val
+                return_value = return_value/first
+                return_value = round(return_value,4)
+                csvrow.append("%0.4f" % return_value)
+                sTmpVal = "%s\t%0.4f" % (sTmpVal,return_value)
+            self.logger.info("%d\t%s\t%s%s" % (iCount,s_date_now,dt_now.strftime('%H:%M:%S'), sTmpVal ))
+            bulk_export_rows.append(csvrow)
+            iCount = iCount + 1
+        sExported = time.strftime('%Y%m%d%H%M%S') #timestamp for unique file name
+        sFileName = "export_random_%d_%s.csv" % (self.nodeselected_id,sExported) #filename for the standard export
+        sExportFilePath = os.path.join(self.EnvDir,sFileName)
+        with open(sExportFilePath,'wb') as exportcsvfile:
+            writer = csv.writer(exportcsvfile,delimiter='\t')
+            writer.writerows(bulk_export_rows)
+        event.Skip()
