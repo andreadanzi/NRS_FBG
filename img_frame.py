@@ -335,7 +335,8 @@ class imgAssociation(wx.Dialog):
         h = min(virtualH, float(clientSize[1]))
         return (w, h)
     
-    def setParameters(self,imgFile,datastreamList,available_datastreamList,imgFileName,imgFilePath, database, min_date, max_date, env_dir):
+    def setParameters(self,imgFile,datastreamList,available_datastreamList,imgFileName,imgFilePath, database, min_date, max_date, env_dir, logger):
+        self.logger = logger
         self.database = database
         self.imgFile=imgFile
         self.EnvDir = env_dir
@@ -780,6 +781,7 @@ class imgAssociation(wx.Dialog):
         event.Skip()
 
     def OnBtnRenderButton(self, event):
+        self.logger.info("IMG_FRAME starting OnBtnRenderButton")
         mycur = self.GetCursor();
         self.txtOutputFile.SetValue("")
         self.SetCursor(wx.StockCursor(id=wx.CURSOR_WAIT))        
@@ -816,15 +818,19 @@ class imgAssociation(wx.Dialog):
         rowList = self.LoadDatapoints(self.imgFileName,sAt_from, sAt_to)
         for row in rowList:
             at_val = float(row[3])
-            const = row[4] #constant_value
+            const = float(row[4]) #constant_value
             lambda_val = float(row[5]) #lambda_value
-            first = row[6] #factor_value
-            second = row[7] #factor_value_2
+            first = float(row[6]) #factor_value
+            second = float(row[7]) #factor_value_2
             sFormula = row[8]
             delta_val = at_val - lambda_val
             x = delta_val
             #resVal = second*x*x + first*x + const
-            retVal = eval(sFormula)
+            try:
+                retVal = eval(sFormula)
+            except Exception, e:
+                retVal = 0.0
+                self.logger.info("Exception on eval(%s): %s" % (sFormula, str(e)))
             mysensors = np.append(mysensors,[[FW*row[1],H-FH*row[2]]],axis=0)
             #mysensors = np.append(mysensors,[[row[1],600-row[2]]],axis=0)
             myvalues = np.append(myvalues,[retVal],axis=0)
@@ -866,6 +872,7 @@ class imgAssociation(wx.Dialog):
         self.txtOutputFile.SetValue(newFilename)
         self.Refresh()
         self.SetCursor(mycur)
+        self.logger.info("IMG_FRAME OnBtnRenderButton terminated")
 
     def LoadDatapoints(self, sFilename, sAt_from, sAt_to):
         #controllare formula danzi.tn@20140702

@@ -6,6 +6,7 @@ import wx.lib.filebrowsebutton, shutil, sqlite3, time, os, csv
 import settings
 import logging, os, stat
 import time
+import ConfigParser
 from nrs_message import Messaggio
 from img_frame import imgAssociation
 import matplotlib.pyplot as plt
@@ -49,25 +50,26 @@ def create(parent):
  wxID_FRAME1STATICTEXT18, wxID_FRAME1STATICTEXT19, wxID_FRAME1STATICTEXT2, 
  wxID_FRAME1STATICTEXT20, wxID_FRAME1STATICTEXT21, wxID_FRAME1STATICTEXT22, 
  wxID_FRAME1STATICTEXT23, wxID_FRAME1STATICTEXT24, wxID_FRAME1STATICTEXT25, 
- wxID_FRAME1STATICTEXT26, wxID_FRAME1STATICTEXT27, wxID_FRAME1STATICTEXT3, 
- wxID_FRAME1STATICTEXT4, wxID_FRAME1STATICTEXT5, wxID_FRAME1STATICTEXT6, 
- wxID_FRAME1STATICTEXT7, wxID_FRAME1STATICTEXT8, wxID_FRAME1STATICTEXT9, 
- wxID_FRAME1STATICTEXTMESSAGE, wxID_FRAME1TEXTCTRLCANTIERE, wxID_FRAME1TXTAVG, 
- wxID_FRAME1TXTCH, wxID_FRAME1TXTCONFHH, wxID_FRAME1TXTCONFMM, 
- wxID_FRAME1TXTCONFSAMPLES, wxID_FRAME1TXTCONFSS, wxID_FRAME1TXTCONST, 
- wxID_FRAME1TXTCTRLCENTRALINA, wxID_FRAME1TXTDEN, wxID_FRAME1TXTDSCODE, 
- wxID_FRAME1TXTDSLEN, wxID_FRAME1TXTDSTITLE, wxID_FRAME1TXTENVCOD, 
- wxID_FRAME1TXTENVLOCATION, wxID_FRAME1TXTENVNODE, wxID_FRAME1TXTENVTITLE, 
- wxID_FRAME1TXTFORMULA, wxID_FRAME1TXTHH, wxID_FRAME1TXTHHFROM, 
- wxID_FRAME1TXTIDEN, wxID_FRAME1TXTIP, wxID_FRAME1TXTLAMBDA, 
- wxID_FRAME1TXTMMFROM, wxID_FRAME1TXTMMTO, wxID_FRAME1TXTNODECODE, 
- wxID_FRAME1TXTNODEDATASTREAM, wxID_FRAME1TXTNODEIP, wxID_FRAME1TXTNODENAME, 
- wxID_FRAME1TXTNUMRANDOM, wxID_FRAME1TXTPERIH, wxID_FRAME1TXTPERIM, 
- wxID_FRAME1TXTPERIS, wxID_FRAME1TXTPORT1, wxID_FRAME1TXTPORT2, 
- wxID_FRAME1TXTPORTINPUT, wxID_FRAME1TXTPORTOUTPUT, wxID_FRAME1TXTSAMP, 
- wxID_FRAME1TXTSECOND, wxID_FRAME1TXTSSFROM, wxID_FRAME1TXTSSTO, 
- wxID_FRAME1TXTSTATUS, wxID_FRAME1WORKINGDIRBROWSEBUTTON, 
-] = [wx.NewId() for _init_ctrls in range(134)]
+ wxID_FRAME1STATICTEXT26, wxID_FRAME1STATICTEXT27, wxID_FRAME1STATICTEXT28, 
+ wxID_FRAME1STATICTEXT3, wxID_FRAME1STATICTEXT4, wxID_FRAME1STATICTEXT5, 
+ wxID_FRAME1STATICTEXT6, wxID_FRAME1STATICTEXT7, wxID_FRAME1STATICTEXT8, 
+ wxID_FRAME1STATICTEXT9, wxID_FRAME1STATICTEXTMESSAGE, 
+ wxID_FRAME1TEXTCTRLCANTIERE, wxID_FRAME1TXTAVG, wxID_FRAME1TXTCH, 
+ wxID_FRAME1TXTCONFHH, wxID_FRAME1TXTCONFMM, wxID_FRAME1TXTCONFSAMPLES, 
+ wxID_FRAME1TXTCONFSS, wxID_FRAME1TXTCONST, wxID_FRAME1TXTCTRLCENTRALINA, 
+ wxID_FRAME1TXTDEN, wxID_FRAME1TXTDSCODE, wxID_FRAME1TXTDSLEN, 
+ wxID_FRAME1TXTDSTITLE, wxID_FRAME1TXTENVCOD, wxID_FRAME1TXTENVLOCATION, 
+ wxID_FRAME1TXTENVNODE, wxID_FRAME1TXTENVTITLE, wxID_FRAME1TXTFORMULA, 
+ wxID_FRAME1TXTHH, wxID_FRAME1TXTHHFROM, wxID_FRAME1TXTIDEN, wxID_FRAME1TXTIP, 
+ wxID_FRAME1TXTLAMBDA, wxID_FRAME1TXTLAMBDARANGE, wxID_FRAME1TXTMMFROM, 
+ wxID_FRAME1TXTMMTO, wxID_FRAME1TXTNODECODE, wxID_FRAME1TXTNODEDATASTREAM, 
+ wxID_FRAME1TXTNODEIP, wxID_FRAME1TXTNODENAME, wxID_FRAME1TXTNUMRANDOM, 
+ wxID_FRAME1TXTPERIH, wxID_FRAME1TXTPERIM, wxID_FRAME1TXTPERIS, 
+ wxID_FRAME1TXTPORT1, wxID_FRAME1TXTPORT2, wxID_FRAME1TXTPORTINPUT, 
+ wxID_FRAME1TXTPORTOUTPUT, wxID_FRAME1TXTSAMP, wxID_FRAME1TXTSECOND, 
+ wxID_FRAME1TXTSSFROM, wxID_FRAME1TXTSSTO, wxID_FRAME1TXTSTATUS, 
+ wxID_FRAME1WORKINGDIRBROWSEBUTTON, 
+] = [wx.NewId() for _init_ctrls in range(136)]
 
 class Frame1(wx.Frame):
 
@@ -114,9 +116,9 @@ class Frame1(wx.Frame):
     def _init_coll_notebook1_Pages(self, parent):
         # generated method, don't edit
 
-        parent.AddPage(imageId=0, page=self.panelEnv, select=False,
+        parent.AddPage(imageId=0, page=self.panelEnv, select=True,
               text=u'Environment')
-        parent.AddPage(imageId=1, page=self.panelNode, select=True,
+        parent.AddPage(imageId=1, page=self.panelNode, select=False,
               text=u'Node')
         parent.AddPage(imageId=2, page=self.panelDatastream, select=False,
               text=u'Datastream')
@@ -166,7 +168,7 @@ class Frame1(wx.Frame):
     def _init_ctrls(self, prnt):
         # generated method, don't edit
         wx.Frame.__init__(self, id=wxID_FRAME1, name='', parent=prnt,
-              pos=wx.Point(189, 177), size=wx.Size(990, 541),
+              pos=wx.Point(280, 156), size=wx.Size(990, 541),
               style=wx.DEFAULT_FRAME_STYLE, title=u'Import FBG')
         self._init_utils()
         self.SetClientSize(wx.Size(974, 503))
@@ -402,8 +404,8 @@ class Frame1(wx.Frame):
         self.txtDsTitle.SetEditable(True)
 
         self.txtFormula = wx.TextCtrl(id=wxID_FRAME1TXTFORMULA,
-              name=u'txtFormula', parent=self.panelDatastream, pos=wx.Point(88,
-              304), size=wx.Size(200, 21), style=0, value=u'')
+              name=u'txtFormula', parent=self.panelDatastream, pos=wx.Point(72,
+              304), size=wx.Size(128, 21), style=0, value=u'')
 
         self.txtLambda = wx.TextCtrl(id=wxID_FRAME1TXTLAMBDA, name=u'txtLambda',
               parent=self.panelDatastream, pos=wx.Point(24, 350),
@@ -432,7 +434,7 @@ class Frame1(wx.Frame):
 
         self.staticText23 = wx.StaticText(id=wxID_FRAME1STATICTEXT23,
               label=u'Formula', name='staticText23',
-              parent=self.panelDatastream, pos=wx.Point(32, 307),
+              parent=self.panelDatastream, pos=wx.Point(24, 307),
               size=wx.Size(39, 13), style=0)
 
         self.staticText11 = wx.StaticText(id=wxID_FRAME1STATICTEXT11,
@@ -968,40 +970,75 @@ class Frame1(wx.Frame):
               parent=self.panelNode, pos=wx.Point(184, 413), size=wx.Size(109,
               13), style=0)
 
+        self.txtLambdaRange = wx.TextCtrl(id=wxID_FRAME1TXTLAMBDARANGE,
+              name=u'txtLambdaRange', parent=self.panelDatastream,
+              pos=wx.Point(242, 304), size=wx.Size(64, 21), style=0, value=u'')
+
+        self.staticText28 = wx.StaticText(id=wxID_FRAME1STATICTEXT28,
+              label=u'Range', name='staticText28', parent=self.panelDatastream,
+              pos=wx.Point(207, 307), size=wx.Size(32, 13), style=0)
+
         self._init_coll_notebook1_Pages(self.notebook1)
 
         self._init_sizers()
 
     def __init__(self, parent):
         self._init_ctrls(parent)
-        self.selected_entity = 1
-        self.selected_entity_id = 0
-        self.databaseBrowseButton.changeCallback = self.dbCallback
-        self.workingDirBrowseButton.changeCallback = self.WorkingDirCallback
-        self.fileBrowseButton1.changeCallback = self.imgCallback 
-        if not os.path.exists(settings.gibedatafolder_path ):
-            os.mkdir(settings.gibedatafolder_path )
-            os.mkdir(settings.gibedatafolder_path + settings.environment_name)
-            os.mkdir(settings.gibedatafolder_path + settings.environment_name+ "\\db")
-        if not os.path.exists(settings.gibeimportfolder_path ):
-            os.mkdir(settings.gibeimportfolder_path )
-        self.logger = logging.getLogger("NrsWXAppLog")
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        handler = logging.FileHandler(settings.gibelogfile_path)
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-        self.logger.info("NrsWXApp Started on %s" % settings.gibeimportfolder_path)
-        self.logger.info("NrsWXApp Database: %s" % settings.database)
-        self.logger.info("NrsWXApp Working Folder: %s" %settings.gibeimportfolder_path)
-        self.workingDirBrowseButton.SetValue(settings.gibedatafolder_path)    
-        self.txtCtrlCentralina.SetValue(settings.first_node);
-        self.textCtrlCantiere.SetValue(settings.environment_name)
-        self.LoadEnvDirs()
-        self.databaseBrowseButton.SetValue(settings.database)
-        self.CheckDB()
-        self.SelectDefaultItems()
-        self.logger.info("NrsWXApp Init terminated")
+        self.cfg = ConfigParser.ConfigParser()
+        res = self.cfg.read('settings.conf')
+        settings.gibedatafolder_path = self.cfg.get('Common','gibedatafolder_path')
+        settings.gibelogfile_name = self.cfg.get('Common','gibelogfile_name')
+        settings.environment_name = self.cfg.get('Common','environment_name')
+        settings.first_node = self.cfg.get('Common','first_node')
+        settings.gibelogfile_path = self.cfg.get('Common','gibelogfile_path')
+        settings.gibeimportfolder_path = self.cfg.get('Common','gibeimportfolder_path')
+        settings.database = self.cfg.get('Common','database')
+        if self.checkSettings():
+            self.selected_entity = 1
+            self.selected_entity_id = 0
+            self.nodeselected_id = None
+            self.databaseBrowseButton.changeCallback = self.dbCallback
+            self.workingDirBrowseButton.changeCallback = self.WorkingDirCallback
+            self.fileBrowseButton1.changeCallback = self.imgCallback 
+            if not os.path.exists(settings.gibedatafolder_path ):
+                os.mkdir(settings.gibedatafolder_path )
+                os.mkdir(settings.gibedatafolder_path + settings.environment_name)
+                os.mkdir(settings.gibedatafolder_path + settings.environment_name+ "\\db")
+            if not os.path.exists(settings.gibeimportfolder_path ):
+                os.mkdir(settings.gibeimportfolder_path )
+            self.logger = logging.getLogger("NrsWXAppLog")
+            self.logger.setLevel(logging.INFO)
+            formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            handler = logging.FileHandler(settings.gibelogfile_path)
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.info("NrsWXApp Started on %s" % settings.gibeimportfolder_path)
+            self.logger.info("NrsWXApp Database: %s" % settings.database)
+            self.logger.info("NrsWXApp Working Folder: %s" %settings.gibeimportfolder_path)
+            self.workingDirBrowseButton.SetValue(settings.gibedatafolder_path)    
+            self.txtCtrlCentralina.SetValue(settings.first_node);
+            self.textCtrlCantiere.SetValue(settings.environment_name)
+            self.LoadEnvDirs()
+            self.databaseBrowseButton.SetValue(settings.database)
+            self.CheckDB()
+            self.SelectDefaultItems()
+            self.logger.info("NrsWXApp Init terminated")
+    
+    def checkSettings(self):
+        if not os.path.isdir(settings.gibedatafolder_path):
+            self.Error("La cartella %s non esiste.\n Configurazione sbagliata, verificare il file settings.conf" % settings.gibedatafolder_path)
+            return False
+        if not os.path.isdir(settings.gibeimportfolder_path):
+            self.Error("La cartella %s non esiste.\n Configurazione sbagliata, verificare il file settings.conf" % settings.gibeimportfolder_path)    
+            return False
+        if not os.path.isfile(settings.gibelogfile_path):
+            self.Error("Il file %s non esiste.\n Configurazione sbagliata, verificare il file settings.conf" % settings.gibelogfile_path)
+            return False
+        if not os.path.isfile(settings.database):
+            self.Error("Il file %s non esiste.\n Configurazione sbagliata, verificare il file settings.conf" % settings.database)
+            return False
+        return True
+        
     
     def setMyCursor(self, cur):
         self.SetCursor(cur)
@@ -1016,17 +1053,18 @@ class Frame1(wx.Frame):
         sEnvCode = self.textCtrlCantiere.GetValue()
         sNodeCode = self.txtCtrlCentralina.GetValue()
         filetstamp = time.strftime('%Y%m%d%H%M%S')
-        shutil.copy(sMeasureFile,os.path.join( self.NodeDir, sEnvCode+"_"+sNodeCode+"_"+filetstamp+".csv"))
+        sFileToImport = os.path.join( self.NodeDir, sEnvCode+"_"+sNodeCode+"_"+filetstamp+".csv")
+        shutil.copy(sMeasureFile,sFileToImport)
         settings.gibeimportfolder_path = self.EnvDir
-        self.logfilepath = os.path.join(self.EnvDir , settings.gibelogfile_name)
-        settings.gibelogfile_path = self.logfilepath  
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        handler = logging.FileHandler(self.logfilepath)
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
+        #self.logfilepath = os.path.join(self.EnvDir , settings.gibelogfile_name)
+        #settings.gibelogfile_path = self.logfilepath  
+        #formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        #handler = logging.FileHandler(self.logfilepath)
+        #handler.setFormatter(formatter)
+        #self.logger.addHandler(handler)
         self.database_file = self.databaseBrowseButton.GetValue()
         settings.database = self.database_file
-        self.run_main()
+        self.run_main(sFileToImport)
         self.CheckDB()
         #time.sleep(1)
         self.setMyCursor(mycur)
@@ -1035,12 +1073,13 @@ class Frame1(wx.Frame):
         self.logger.info("Importazione completata, verificare la cartella di lavoro %s " % self.EnvDir)
         event.Skip()
         
-    def run_main(self):
+    def run_main(self,sFileToImport):
         self.logger.info("GibeNRSApp Started on %s" % settings.gibeimportfolder_path)
         item = self.txtCtrlCentralina.GetValue()
         if os.path.isdir(settings.gibeimportfolder_path+"/"+item) == True:
           csv_folder = settings.gibeimportfolder_path+"/"+item
-          gibe2nrs = GibeToNrs(self.e_uid,item,csv_folder,self.logger)
+          gibe2nrs = GibeToNrs(self.e_uid,item,csv_folder,self.logger,self.nodeselected_id)
+          gibe2nrs.set_import_file(sFileToImport)
           gibe2nrs.run()
 
     def LoadFilenames(self,nodeId):
@@ -1150,11 +1189,11 @@ class Frame1(wx.Frame):
         mycur = self.GetCursor();
         self.setMyCursor(self.stockCursor1)
         self.logger.info("CheckDB...starting")
-        self.database_file = self.databaseBrowseButton.GetValue()
-        if settings.database != self.database_file:
+        self.database_file = self.databaseBrowseButton.GetValue() #si legge il file del DB dal campo testo
+        if settings.database != self.database_file: #controlla che sia conforme ai settings, nel caso cambia i settings
             self.logger.info("Changing Database from %s to %s" % (settings.database,self.database_file))
             settings.database = self.database_file
-        self.listCtrl1.DeleteAllItems()
+        self.listCtrl1.DeleteAllItems() #cancella tutto dalle liste
         self.listCtrlEnv.DeleteAllItems()
         self.listCtrlNode.DeleteAllItems()
         self.listCtrlDatastream.DeleteAllItems()
@@ -1174,7 +1213,7 @@ class Frame1(wx.Frame):
             return_value = row[0]       
         else:
             return_value = 0
-        self.listCtrl1.InsertStringItem(0,u'Environment')
+        self.listCtrl1.InsertStringItem(0,u'Environment') #inserisce il numero di env nella lista
         self.listCtrl1.SetStringItem(0,1,"%d" % return_value)
         if row[1]!=None:
             self.listCtrl1.SetStringItem(0,2,row[1])
@@ -1190,7 +1229,7 @@ class Frame1(wx.Frame):
             return_value = row[0]       
         else:
             return_value = 0
-        self.listCtrl1.InsertStringItem(1,u'Node')
+        self.listCtrl1.InsertStringItem(1,u'Node') #inserisce il numero di nodi nella lista
         self.listCtrl1.SetStringItem(1,1,"%d" % return_value)
         if row[1]!=None:
             self.listCtrl1.SetStringItem(1,2,row[1])
@@ -1206,7 +1245,7 @@ class Frame1(wx.Frame):
             return_value = row[0]       
         else:
             return_value = 0
-        self.listCtrl1.InsertStringItem(2,u'Datastream')
+        self.listCtrl1.InsertStringItem(2,u'Datastream') #inserisce il numero di datastream nella lista
         self.listCtrl1.SetStringItem(2,1,"%d" % return_value)
         if row[1]!=None:
             self.listCtrl1.SetStringItem(2,2,row[1])
@@ -1222,23 +1261,26 @@ class Frame1(wx.Frame):
             return_value = row[0]       
         else:
             return_value = 0
-        self.listCtrl1.InsertStringItem(3,u'Datapoint')
+        self.listCtrl1.InsertStringItem(3,u'Datapoint') #inserisce il numero di datapoint nella lista
         self.listCtrl1.SetStringItem(3,1,"%d" % return_value)
         if row[1]!=None:
             self.listCtrl1.SetStringItem(3,2,row[1])
         else:            
             self.listCtrl1.SetStringItem(3,2,u'None')
         db_conn.close()
-        self.LoadEnv()
+        self.LoadEnv() #carica tutti gli env
         if self.listCtrlEnv.GetItemCount > 0:
             id=self.listCtrlEnv.GetItemData(0)
             if id>0:
                 self.txtEnvNode.SetValue(u'%s' % self.listCtrlEnv.GetItem(0,1).GetText())
-                self.LoadNode(id)
-                id=self.listCtrlNode.GetItemData(0)
+                self.LoadNode(id) #carica tutti i nodi
+                if self.nodeselected_id == None:
+                    id = self.listCtrlNode.GetItemData(0)
+                else:
+                    id = self.nodeselected_id
                 if id>0:
                     self.LoadFilenames(id)
-                    self.txtNodeDatastream.SetValue(u'%s' % self.listCtrlNode.GetItem(0,1).GetText())
+                    self.txtNodeDatastream.SetValue(u'%s' % self.txtNodeCode.GetValue())
                     self.LoadDataFilter(id)
                     self.LoadDistinctDatastreamUpdated2(id)
                     self.nodeselected_id = id
@@ -1307,7 +1349,7 @@ class Frame1(wx.Frame):
 			LEFT JOIN nrs_datapoint ON nrs_datapoint.nrs_datastream_id = nrs_datastream.id
             WHERE nrs_datastream.nrs_node_id = %d 
             GROUP BY title, datastream_uid, nrs_datastream.updated,nrs_datastream.id, factor_title
-            ORDER BY title ASC
+            ORDER BY nrs_datastream.ch , nrs_datastream.lambda_value 
         """ % node_id
         self.logger.info("LoadDatastream sQuery \n %s " % sQuery)
         retVal = db_cur.execute(sQuery)
@@ -1398,6 +1440,7 @@ class Frame1(wx.Frame):
 
     def LoadDistinctDatastreamUpdated2(self, node_id, from_date=None, to_date=None):
         #controllare formula danzi.tn@20140702
+        self.logger.info("LoadDistinctDatastreamUpdated2 starting on node_id %d" % node_id )
         return_value = -99
         self.database_file = self.databaseBrowseButton.GetValue()
         settings.database = self.database_file
@@ -1440,21 +1483,26 @@ class Frame1(wx.Frame):
         xx=0
         for row in rows:
             at_val = float(row[3])
-            const = row[6] #constant_value
+            const = float(row[6]) #constant_value
             lambda_val = float(row[7]) #lambda_value
-            first = row[8] #factor_value
-            second = row[9] #factor_value_2
+            first = float(row[8]) #factor_value
+            second = float(row[9]) #factor_value_2
             sFormula = row[10]
             delta_val = at_val - lambda_val
             x = delta_val
             #resVal = second*x*x + first*x + const
-            return_value = eval(sFormula)
+            try:
+                return_value = eval(sFormula)
+            except Exception, e:
+                return_value = 0.0
+                self.logger.info("Exception on eval(%s): %s" % (sFormula, str(e)))
             self.listCtrlDatapoint.InsertStringItem(xx,row[5])
             self.listCtrlDatapoint.SetStringItem(xx,1,row[2])
             self.listCtrlDatapoint.SetStringItem(xx,2,u'%f'%return_value)
             self.listCtrlDatapoint.SetStringItem(xx,3,u'%d'%row[4])
             self.listCtrlDatapoint.SetItemData(xx,row[0])
             xx=xx+1
+        self.logger.info("LoadDistinctDatastreamUpdated2 on node_id %d terminated!" % node_id )
         db_conn.close()
     
     def LoadDatapointAvg2(self, datastream_id, date_from=None, date_to=None):
@@ -1491,20 +1539,25 @@ class Frame1(wx.Frame):
         row = retVal.fetchone()
         if row:
             at_val = float(row[0])
-            const = row[1] #constant_value
+            const = float(row[1]) #constant_value
             lambda_val = float(row[2]) #lambda_value
-            first = row[3] #factor_value
-            second = row[4] #factor_value_2
+            first = float(row[3]) #factor_value
+            second = float(row[4]) #factor_value_2
             sFormula = row[5]
             delta_val = at_val - lambda_val
             x = delta_val
             #resVal = second*x*x + first*x + const
-            return_value = eval(sFormula)
+            try:
+                return_value = eval(sFormula)
+            except Exception, e:
+                return_value = 0.0
+                self.logger.info("Exception on eval(%s): %s" % (sFormula, str(e)))
         db_conn.close()
         return return_value
 
     def LoadDatapoints2(self, datastream_id, avg_val, date_from=None, date_to=None):
         # controllare formula danzi.tn@20140702
+        self.logger.info("LoadDatapoints2 datastream_id = %d and avg_val = %f" % (datastream_id, avg_val))
         return_value = -99
         db_conn = sqlite3.connect(settings.database)
         db_cur = db_conn.cursor()
@@ -1541,15 +1594,19 @@ class Frame1(wx.Frame):
         for row in rows:
             xx = xx + 1
             at_val = float(row[2])
-            const = row[3]
+            const = float(row[3])
             lambda_val = float(row[4])
-            first = row[5]
-            second = row[6]
+            first = float(row[5])
+            second = float(row[6])
             sFormula = row[7]
             delta_val = at_val - lambda_val
             x = delta_val
             #resVal = second*x*x + first*x + const
-            resVal = eval(sFormula)
+            try:
+                resVal = eval(sFormula)
+            except Exception, e:
+                resVal = 0.0
+                self.logger.info("Exception on eval(%s): %s" % (sFormula, str(e)))
             #val.append(row[0])
             val.append(resVal)
             sDate = row[0]
@@ -1562,6 +1619,7 @@ class Frame1(wx.Frame):
             avg.append(tmpavg)
         db_conn.close()
         return_value={'val':val,'dta':dta,'lbl':lbl,'avg':avg,'datetime':ddatetime}
+        self.logger.info("LoadDatapoints2 terminated")
         return return_value   
 
     def GetEnv(self,id):
@@ -1624,7 +1682,8 @@ class Frame1(wx.Frame):
                     factor_value_2, 
                     ds_formula, 
                     nrs_node.node_uid as nrs_node_uid, 
-                    nrs_datastream.ch as ds_channell
+                    nrs_datastream.ch as ds_channell,
+                    nrs_datastream.lambda_range
             FROM nrs_datastream 
             JOIN nrs_node ON nrs_node.id = nrs_datastream.nrs_node_id
 			LEFT JOIN nrs_datapoint ON nrs_datastream.id = nrs_datapoint.nrs_datastream_id
@@ -1642,12 +1701,13 @@ class Frame1(wx.Frame):
                     factor_value_2, 
                     ds_formula, 
                     nrs_node.node_uid, 
-                    nrs_datastream.ch
+                    nrs_datastream.ch,
+                    nrs_datastream.lambda_range
         """ % id
         retVal = db_cur.execute(sQuery)
         row = retVal.fetchone()  
         if row:
-            return_value = {'id':row[0],'title':row[1],'datastream_uid':row[2],'updated':row[3],'den':row[4],'lambda':row[5],'const':row[6],'ds_len':row[7],'max_date':row[8],'min_date':row[9],'second':row[10],'formula':row[11],'node_uid':row[12],'ds_channell':row[13]} 
+            return_value = {'id':row[0],'title':row[1],'datastream_uid':row[2],'updated':row[3],'den':row[4],'lambda':row[5],'const':row[6],'ds_len':row[7],'max_date':row[8],'min_date':row[9],'second':row[10],'formula':row[11],'node_uid':row[12],'ds_channell':row[13],'range':row[14]} 
         db_conn.close()
         return return_value
     
@@ -1695,12 +1755,14 @@ class Frame1(wx.Frame):
             sSecond = self.txtSecond.GetValue()
             sTitle = self.txtDsTitle.GetValue()
             sFormula = self.txtFormula.GetValue()
+            sRange = self.txtLambdaRange.GetValue()
             sDen = sDen.replace(',','.')
             sConst = sConst.replace(',','.')
             sLambda = sLambda.replace(',','.')
             sSecond = sSecond.replace(',','.')
             sFormula = sFormula.replace(',','.')
-            ds_item = {'id': self.selected_entity_id, 'den':sDen,'const':sConst,'lambda':sLambda,'title':sTitle,'second':sSecond,'formula':sFormula}
+            sRange = sRange.replace(',','.')
+            ds_item = {'id': self.selected_entity_id, 'den':sDen,'const':sConst,'lambda':sLambda,'title':sTitle,'second':sSecond,'formula':sFormula,'range':sRange}
             ret = self.UpdatetDs(ds_item)
         event.Skip()
     
@@ -1750,9 +1812,9 @@ class Frame1(wx.Frame):
             UPDATE 
             nrs_datastream
             SET
-            factor_value = %s , lambda_value= %s, constant_value=%s, updated='%s', title='%s' , factor_value_2=%s, ds_formula='%s'
+            factor_value = %s , lambda_value= %s, constant_value=%s, updated='%s', title='%s' , factor_value_2=%s, ds_formula='%s', lambda_range=%s
             WHERE id = %d
-        """ % (ds_item['den'], ds_item['lambda'], ds_item['const'],sUpdated,ds_item['title'],ds_item['second'],ds_item['formula'],ds_item['id'])
+        """ % (ds_item['den'], ds_item['lambda'], ds_item['const'],sUpdated,ds_item['title'],ds_item['second'],ds_item['formula'],ds_item['range'],ds_item['id'])
         retVal = db_cur.execute(sQuery)
         db_conn.commit()
         db_conn.close()
@@ -1930,17 +1992,19 @@ class Frame1(wx.Frame):
         self.txtDsTitle.Clear()
         self.txtDsTitle.SetValue(u'%s' % dsData['title'])
         self.txtConst.Clear()
-        self.txtConst.SetValue(u'%f' % dsData['const'])
+        self.txtConst.SetValue(u'%f' % float(dsData['const']))
         self.txtLambda.Clear()
-        self.txtLambda.SetValue(u'%f' % dsData['lambda'])
+        self.txtLambda.SetValue(u'%f' % float(dsData['lambda']))
         self.txtDen.Clear()
-        self.txtDen.SetValue(u'%f' % dsData['den'])
+        self.txtDen.SetValue(u'%f' % float(dsData['den']))
         self.txtSecond.Clear()
-        self.txtSecond.SetValue(u'%f' % dsData['second'])
+        self.txtSecond.SetValue(u'%f' % float(dsData['second']))
         self.txtFormula.Clear()
         self.txtFormula.SetValue(u'%s' % dsData['formula'])
         self.txtCh.Clear()
         self.txtCh.SetValue(u'%d' % dsData['ds_channell'])
+        self.txtLambdaRange.Clear()
+        self.txtLambdaRange.SetValue(u'%f' % float(dsData['range']))
         if dsData['max_date']!= None:
 			max_date=datetime.strptime(dsData['max_date'],'%Y%m%d%H%M%S%f')
 			wxmaxdate = wx.DateTimeFromDMY(max_date.day, max_date.month - 1, max_date.year, 0, 0, 0)     
@@ -2050,6 +2114,7 @@ class Frame1(wx.Frame):
 
     def ExportGroupedDatapoints(self, node_id, datastream_id, datetime_from,datetime_to):
         #controllare formula danzi.tn@20140702
+        self.logger.info("ExportGroupedDatapoints on node %d and datastream_id %d" % (node_id, datastream_id))
         sFormat = self.chkFormat.GetStringSelection()
         if sFormat=="aaaa-mm-gg":
             sFormat = "%Y-%m-%d %H:%M:%S"
@@ -2134,15 +2199,19 @@ class Frame1(wx.Frame):
             dtt=datetime.strptime(row[2],'%Y%m%d')
             sAt = dtt.strftime(sFormat) 
             at_val = float(row[1])
-            const = row[5] #constant_value
+            const = float(row[5]) #constant_value
             lambda_val = float(row[6]) #lambda_value
-            first = row[7] #factor_value
-            second = row[8] #factor_value_2
+            first = float(row[7]) #factor_value
+            second = float(row[8]) #factor_value_2
             sFormula = row[9]
             delta_val = at_val - lambda_val
             x = delta_val
             #resVal = second*x*x + first*x + const
-            retVal = eval(sFormula) 
+            try:
+                retVal = eval(sFormula)
+            except Exception, e:
+                retVal = 0.0
+                self.logger.info("Exception on eval(%s): %s" % (sFormula, str(e)))
             sValue_at = "%f" % retVal
             if self.rbtComma.GetValue():
                 sValue_at = sValue_at.replace('.',',')
@@ -2158,6 +2227,7 @@ class Frame1(wx.Frame):
             sLastDs = sTitle                   
         bulk_export_rows.append(body)
         db_conn.close()        
+        self.logger.info("ExportGroupedDatapoints terminated");
         return bulk_export_rows
     
     def ExportDatapoints(self, node_id, datastream_id, datetime_from,datetime_to):
@@ -2200,6 +2270,11 @@ class Frame1(wx.Frame):
     
     def Info(parent, message, caption = 'Insert program title'):
         dlg = wx.MessageDialog(parent, message, caption, wx.OK | wx.ICON_INFORMATION)
+        dlg.ShowModal()
+        dlg.Destroy()
+         
+    def Error(parent, message, caption = 'Insert program title'):
+        dlg = wx.MessageDialog(parent, message, caption, wx.OK | wx.ICON_ERROR)
         dlg.ShowModal()
         dlg.Destroy()
 
@@ -2351,7 +2426,7 @@ class Frame1(wx.Frame):
         if not self.chkByNode.IsChecked():
             self.LoadAllDatastreams()
         imgBox = imgAssociation(self)
-        imgBox.setParameters(self.wximgMap,self.nrs_datastream_pictures,self.datastreamslist,self.imgFileName,self.imgFilePath, settings.database,self.wxMinDatetime_at,self.wxMaxDatetime_at, self.EnvDir)
+        imgBox.setParameters(self.wximgMap,self.nrs_datastream_pictures,self.datastreamslist,self.imgFileName,self.imgFilePath, settings.database,self.wxMinDatetime_at,self.wxMaxDatetime_at, self.EnvDir, self.logger)
         self.setMyCursor(mycur)
         imgBox.ShowModal()
         imgBox.Destroy()
@@ -2365,7 +2440,7 @@ class Frame1(wx.Frame):
         if not self.chkByNode.IsChecked():
             self.LoadAllDatastreams()
         imgBox = imgAssociation(self)
-        imgBox.setParameters(self.wximgMap,self.nrs_datastream_pictures,self.datastreamslist,self.imgFileName, self.imgFilePath,settings.database,self.wxMinDatetime_at,self.wxMaxDatetime_at, self.EnvDir)        
+        imgBox.setParameters(self.wximgMap,self.nrs_datastream_pictures,self.datastreamslist,self.imgFileName, self.imgFilePath,settings.database,self.wxMinDatetime_at,self.wxMaxDatetime_at, self.EnvDir, self.logger)        
         self.setMyCursor(mycur)
         imgBox.ShowModal()
         imgBox.Destroy()
@@ -2520,6 +2595,7 @@ class Frame1(wx.Frame):
         event.Skip()
 
     def OnBtnTestButton(self, event):    
+        self.logger.info("OnBtnTestButton starting...")
         mycur = self.GetCursor();
         self.setMyCursor(self.stockCursor1)
         sIP= self.txtIP.GetValue()
@@ -2552,6 +2628,7 @@ class Frame1(wx.Frame):
             if res != None:
                 self.txtIDEN.SetValue(res)
                 res=self.scpi.getSTAT()
+                self.logger.info("Check node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
                 self.txtStatus.SetValue(res)
                 if self.scpi.status == -1:
                     self.txtStatus.SetBackgroundColour(wx.Colour(192, 192, 192));
@@ -2589,22 +2666,28 @@ class Frame1(wx.Frame):
             else:
                 self.setMyCursor(mycur)
                 self.Info("Impossibile connettersi a %s:%s" % (sIP,sPort1))
+                self.logger.info("Connection not available on %s:%s" % (sIP,sPort1))
         else:
             self.setMyCursor(mycur)
             self.Info("Formato dell'indirizzo IP e delle porte NON Valido ")
         self.Refresh()
+        self.logger.info("OnBtnTestButton terminated!")
         event.Skip()
     
     
     def listDirs(self):
+        self.logger.info("Starting scpi listDirs...")
         self.lstDir.DeleteAllItems();
         res=self.scpi.getSTAT()
+        self.logger.info("listDirs checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 1:
             resItems = self.scpi.getDIRE()
             x=0
             for item in resItems:
-                self.lstDir.InsertStringItem(x,item)
+                self.lstDir.InsertStringItem(x,item.strip())
+                self.logger.info("scpi DIRE %s" % item.strip())
                 x=x+1
+        self.logger.info("scpi listDirs terminated")
 
     def retrieveSCPIParm(self):
         res=self.scpi.getPERI()
@@ -2618,6 +2701,7 @@ class Frame1(wx.Frame):
 
     def OnBtnSavePERI_SAMButton(self, event):
         res=self.scpi.getSTAT()
+        self.logger.info("Set Sampling checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 1:
             mycur = self.GetCursor();
             self.setMyCursor(self.stockCursor1)
@@ -2657,10 +2741,12 @@ class Frame1(wx.Frame):
         mycur = self.GetCursor();
         self.setMyCursor(self.stockCursor1)
         res=self.scpi.getSTAT()
+        self.logger.info("Start Scheduling checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 1: 
             res = self.scpi.startSCHEDULE()
             if res == 'OK':
-                self.setMyCursor(mycur)
+                self.setMyCursor(mycur)                
+                self.logger.info("Starting scpi SCHEDULE...")
                 #self.Info("Schedulazione avviata correttamente")
                 self.OnBtnTestButton(event)
             else:
@@ -2685,10 +2771,12 @@ class Frame1(wx.Frame):
         mycur = self.GetCursor();
         self.setMyCursor(self.stockCursor1)
         res=self.scpi.getSTAT()
+        self.logger.info("Stop ACQU checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 2 or self.scpi.status == 3 or self.scpi.status == 4: 
             res = self.scpi.stopACQU()    
             if res == 'OK':  
-                self.setMyCursor(mycur)
+                self.setMyCursor(mycur)           
+                self.logger.info("scpi ACQU stopped!")
                 #self.Info("Schedulazione interrotta correttamente")
                 self.OnBtnTestButton(event)
             else:
@@ -2716,8 +2804,10 @@ class Frame1(wx.Frame):
         mycur = self.GetCursor();
         self.setMyCursor(self.stockCursor1)
         res=self.scpi.getSTAT()
+        self.logger.info("Delete MEMO checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 1:
-            self.scpi.deleteMEMO()
+            self.scpi.deleteMEMO()        
+            self.logger.info("scpi delete MEMO completed!")
             self.listDirs()
             self.Info("Cancellazione della memoria avvenuta correttamente")
         self.setMyCursor(mycur)
@@ -2728,14 +2818,18 @@ class Frame1(wx.Frame):
             mycur = self.GetCursor();
             self.setMyCursor(self.stockCursor1)
             retItems = self.getDataFromDevice()
+            iSamples = 0
             if len(retItems) > 0:
-                gibe2nrs = GibeToNrs(self.e_uid,self.txtCtrlCentralina.GetValue(),self.NodeDir,self.logger)
-                gibe2nrs.run_itemlist(retItems)
-            else:
+                gibe2nrs = GibeToNrs(self.e_uid,self.txtCtrlCentralina.GetValue(),self.NodeDir,self.logger,self.nodeselected_id)
+                #iSamples = gibe2nrs.run_itemlist(retItems)
+                iSamples = gibe2nrs.import_itemlist(retItems)
+            else:        
+                self.logger.info("No data available!")
                 self.Info("Non ci sono dati da esportare")
             self.setMyCursor(mycur)
             self.CheckDB()
-            self.Info("Operazione completata, %d campioni importati!" % len(retItems), "Import Data")
+            self.logger.info("Data import completed, %d/%d samples imported!" % (iSamples,len(retItems)))
+            self.Info("Operazione completata, %d campioni importati su totali %d!" % (iSamples,len(retItems)), "Import Data")
             event.Skip()
 
     def OnBtnExportFileButton(self, event):
@@ -2782,24 +2876,31 @@ class Frame1(wx.Frame):
             self.Info("Error in saving file.")
             return False
     
-    def getDataFromDevice(self):
+    def getDataFromDevice(self): 
+        self.logger.info("Starting getDataFromDevice...")
         retItems = []
         res=self.scpi.getSTAT()
+        self.logger.info("getDataFromDevice checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 1:
             nCount = self.lstDir.GetSelectedItemCount()
             if nCount > 0:
                 selection = []
                 index = self.lstDir.GetFirstSelected()
                 itemText = self.lstDir.GetItemText(index)
-                items = self.scpi.getDATA(itemText)
+                items = self.scpi.getDATA(itemText.strip())
+                self.logger.info("getDataFromDevice: scpi DATA retrieved for %s folder, tot items = %d" % (itemText,len(items)))
                 retItems = retItems + items
                 selection.append(index)
                 while len(selection) != nCount:
                     index = self.lstDir.GetNextSelected(index)
                     itemText = self.lstDir.GetItemText(index)
-                    items = self.scpi.getDATA(itemText)
+                    items = self.scpi.getDATA(itemText.strip())
+                    self.logger.info("getDataFromDevice: scpi DATA retrieved for %s folder, tot items = %d" % (itemText,len(items)))
                     retItems = retItems + items
-                    selection.append(itemText)        
+                    selection.append(index)
+        else:
+            self.logger.info("getDataFromDevice, wrong scpi status(%d)" % self.scpi.status)
+        self.logger.info("getDataFromDevice Terminated!")
         return retItems
     
     def tryDBConnect(self):
@@ -2817,13 +2918,15 @@ class Frame1(wx.Frame):
             self.Info('something\'s wrong with %s:%d. Exception type is %s' % (self.host, self.port, `e`),'DB non corretto')
             return False
 
+
     def OnBtnIPADButton(self, event):
         res = self.scpi.getSTAT()
+        self.logger.info("Set IP Address checks node with id %d: scpi status (%d) %s" % (self.nodeselected_id, self.scpi.status,res))
         if self.scpi.status == 1:
             sIPAD = self.txtNodeIp.GetValue()
             sSM = "255.0.0.0"
             sGW = "0.0.0.0"
-            self.scpi.setIPAD(self,sIPAD,sSM,sGW)
+            self.scpi.setIPAD(sIPAD,sSM,sGW)
             self.Info('Configurazione della scheda di rete della centralina eseguita! Attendere il riavvio','Configurazione di rete')
 
     def OnChkByNodeCheckbox(self, event):
@@ -2838,13 +2941,13 @@ class Frame1(wx.Frame):
             self.logger.info("...per il datastream corrente (%s)" % self.selected_datastream_id)
             self.updateDatastreamUid(self.selected_datastream_id)
         self.logger.info("Aggiornamento dei codici datastream terminato")
-        event.Skip()
 
       
     def updateDatastreamUid(self,ds_id):
-        self.logger.info("...per il datastream corrente (%s)" % self.selected_datastream_id)
+        self.logger.info("Starting updateDatastreamUid for ds_id = %d" % ds_id )
+        self.logger.info("...for datastream uid = %s" % self.selected_datastream_id)
         dsData = self.GetDatastream(ds_id)
-        f_lambda = dsData['lambda']
+        f_lambda = float(dsData['lambda'])
         node_uid = dsData['node_uid']
         ds_prefix_no = 0
         prefix = "_%02d." % dsData['ds_channell']
@@ -2866,6 +2969,7 @@ class Frame1(wx.Frame):
         db_conn.commit()
         db_conn.close()
         self.CheckDB()
+        self.logger.info("updateDatastreamUid terminated!" )
 
     def OnChkAllDsCheckbox(self, event):
         event.Skip()
@@ -2929,6 +3033,7 @@ class Frame1(wx.Frame):
         self.listCtrlDatastream.Select(indices[0])
 
     def OnBtnRandomGenButton(self, event):
+        self.logger.info("exporting random datapoints for node with id %d" % self.nodeselected_id )
         nRandom = int(self.txtNumRandom.GetValue())
         nHH = int(self.txtConfHH.GetValue())
         nMM = int(self.txtConfMM.GetValue())
@@ -2938,6 +3043,7 @@ class Frame1(wx.Frame):
         fSamples= (nSamples)
         fRate = fRandom / fSamples
         nTotSec = nHH*3600+nMM*60+nSS
+        self.logger.info("...it requires %d readouts, with %d samples every %d seconds" % (fRate,fSamples, nTotSec))
         self.Info("Saranno necessarie %d rilevazioni di %d campioni ogni %d secondi" % (fRate,fSamples, nTotSec))
         iCount = 1
         dt_now = datetime.now()
@@ -2958,6 +3064,7 @@ class Frame1(wx.Frame):
             WHERE nrs_datastream.nrs_node_id = %d 
             ORDER BY  ch , nrs_datastream.lambda_value 
         """ % self.nodeselected_id
+        self.logger.info("sQuery = %s" % sQuery )
         retVal = db_cur.execute(sQuery)
         rows = retVal.fetchall()
         db_conn.close()
@@ -2982,7 +3089,6 @@ class Frame1(wx.Frame):
                 return_value = round(return_value,4)
                 csvrow.append("%0.4f" % return_value)
                 sTmpVal = "%s\t%0.4f" % (sTmpVal,return_value)
-            self.logger.info("%d\t%s\t%s%s" % (iCount,s_date_now,dt_now.strftime('%H:%M:%S'), sTmpVal ))
             bulk_export_rows.append(csvrow)
             iCount = iCount + 1
         sExported = time.strftime('%Y%m%d%H%M%S') #timestamp for unique file name
@@ -2991,4 +3097,6 @@ class Frame1(wx.Frame):
         with open(sExportFilePath,'wb') as exportcsvfile:
             writer = csv.writer(exportcsvfile,delimiter='\t')
             writer.writerows(bulk_export_rows)
-        event.Skip()
+        self.logger.info("exporting random datapoints terminated, file available on %s" % sExportFilePath )
+        self.Info("Esportazione terminata, il file %s e' disponibile!" % sExportFilePath )
+

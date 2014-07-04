@@ -6,19 +6,22 @@ import settings
 from datetime import datetime
 
 class GibeToNrs():
-  def __init__(self,e_uid,n_uid, csv_folder,logger):
+  def __init__(self,e_uid,n_uid, csv_folder,logger, node_id=0):
     self.logger = logger
     self.csv_folder = csv_folder
     self.env_uid = e_uid
     self.n_uid = n_uid
+    self.nodeselected_id = node_id
     if( not os.path.isdir(self.csv_folder) ):
       raise IOError("CSV Folder %s does not exists" % self.csv_folder)
     os.chdir(self.csv_folder)
     self.nrs_environment_id = self.check_env_uid()
-    node_uid = self.n_uid
-    nrs_node_id = self.check_node_uid(self.nrs_environment_id, self.env_uid+node_uid)
     self.iRun = 0
+    self.import_file_path = ""
     self.shutdown = False
+  
+  def set_import_file(self,importFilePath):
+    self.import_file_path =  importFilePath
   
   def run(self):
     self.logger.info("GibeToNrs started on %s is starting up" % (self.csv_folder))
@@ -30,58 +33,46 @@ class GibeToNrs():
       self.shutdown = True;
     self.logger.info("GibeToNrs started on %s is shutting down with iRun=%d" % (self.csv_folder,self.iRun))
   
-  def run_itemlist(self,itemlist):      
-    bulk_insert = {}
-    node_uid = self.n_uid
-    nrs_node_id = self.check_node_uid(self.nrs_environment_id, self.env_uid+node_uid)
+  
+  def import_itemlist(self,itemlist):
+    self.logger.info("GibeToNrs.import_itemlist started on %d items"% len(itemlist))   
     bulk_insert_row = []
     bulk_insert_row.append(("nrs_environment_id", "nrs_node_id","nrs_datastream_id","sample_no","value_at","datetime_at","updated"  ))
-    datastream_uids = {}
-    sample=1      
-    i=0
     sUpdated = time.strftime('%Y-%m-%d %H:%M:%S')
+    dsItems = self.get_datastream_for_lambda(self.nodeselected_id)
+    sample = 0
     for row in itemlist:
-      #self.logger.info("GibeToNrs on %s reads CSV sample number %d" % (self.csv_folder,sample) )
-      icol=0
-      isensor=1
-      ds_prefix="_%02d."
-      ds_prefix_no = 0
-      sAt=""
-      flast_value=0.0
+      sample = sample + 1
       cols = row.split('\t')
-      for col in cols:
-        icol=icol+1
-        if icol==1:
-          # first col is date
-          sdate = "%s" % col
-        elif icol==2:
-          # time
-          stime = "%s" % col
-          if len(stime)==8:
-            stime = stime + ".000"
-          dt=datetime.strptime(sdate + " " +stime,"%d/%m/%Y %H:%M:%S.%f")
-          sAt = dt.strftime('%Y%m%d%H%M%S%f')           
-        elif icol > 2:
-          current_value = "%s" % col
-          current_value = current_value.replace(',','.')
-          fcurrent_value = float(current_value)
-          fcurrent_value = round(fcurrent_value,3)
-          if flast_value >= fcurrent_value:
-            ds_prefix_no = ds_prefix_no+1
-            isensor = 1
-          prefix = ds_prefix % ds_prefix_no
-          sId = "%s-%d" % (prefix,isensor)
-          if sId not in datastream_uids:
-            nrs_datastream_id = self.check_datastream_uid(self.nrs_environment_id,nrs_node_id, fcurrent_value, isensor , prefix , node_uid)
-            datastream_uids[sId]=nrs_datastream_id
-          else:
-            nrs_datastream_id = datastream_uids[sId]
-          bulk_insert_row.append((self.nrs_environment_id, nrs_node_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
-          i=i+1
-          isensor = isensor + 1
-          flast_value = fcurrent_value
-      sample=sample+1
-    self.logger.info("bulk_insert_row is ready with %d samples and %d rows" % (sample,i))
+      if len(cols) < len(dsItems) + 2:
+        self.logger.info("GibeToNrs.import_itemlist row number %d, there are %d measures against %d datastream....some measures were lost! " %(sample, len(cols)-2,len(dsItems)))
+      elif len(cols) > len(dsItems) + 2:
+        self.logger.error("GibeToNrs.import_itemlist, too many measures (%d), skipping row number %d" % (len(cols),sample))
+        continue
+      sdate = "%s" % cols[0] ### first item is the date
+      stime = "%s" % cols[1] ### second item is the time
+      if len(stime)==8:
+        stime = stime + ".000"
+      dt=datetime.strptime(sdate + " " +stime,"%d/%m/%Y %H:%M:%S.%f")
+      sAt = dt.strftime('%Y%m%d%H%M%S%f')
+      iProg = 1   
+      for dsItem in dsItems:
+        iProg = iProg + 1
+        dsLambda = dsItem['lambda']
+        dsRange = dsItem['range']
+        dsCh = dsItem['ch']
+        nrs_datastream_id = dsItem['id']
+        flast_value = 0.0
+        bFound = False
+        current_value = "%s" % cols[iProg]
+        current_value = current_value.strip().replace(',','.')
+        fcurrent_value = round(float(current_value),3)
+        if fcurrent_value < dsLambda + dsRange and fcurrent_value > dsLambda - dsRange:
+          bFound = True
+        else:
+          current_value = "-998"
+          self.logger.error("GibeToNrs.import_itemlist, Datastream %d not found for sample %d; current value is %f and lambda should be %f within a range of %f" % (nrs_datastream_id,sample,fcurrent_value,dsLambda,dsRange))
+        bulk_insert_row.append((self.nrs_environment_id, self.nodeselected_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
     if not os.path.exists(self.csv_folder+"/tmp"):
       os.mkdir(self.csv_folder+"/tmp")
     csv_file = time.strftime('%Y%m%d%H%M%S')
@@ -111,6 +102,7 @@ class GibeToNrs():
     for key, value in dd_dict.items():
       sTmpWhere = sTmpWhere + " OR ( nrs_datastream_id=%s AND datetime_at >= '%s' AND datetime_at <= '%s' )" % (key,value['min'],value['max'])
     sDeleteQuery = """DELETE FROM nrs_datapoint WHERE %s """ % sTmpWhere
+    self.logger.info("GibeToNrs.import_itemlist sDeleteQuery = %s"% sDeleteQuery)
     try:
       db_cur.execute(sDeleteQuery)
       sInsertQuery = """INSERT INTO nrs_datapoint ( 
@@ -122,12 +114,127 @@ class GibeToNrs():
                            datetime_at, 
                            updated
                         ) VALUES (?, ?, ?, ?, ?, ?, ?);"""
+      self.logger.info("GibeToNrs.import_itemlist sInsertQuery = %s"% sInsertQuery)
       db_cur.executemany(sInsertQuery, to_db)
       db_conn.commit()
     except MySQLdb.Error, e:
-      self.logger.error("An error has been passed. %s" %e  )
+      self.logger.error("GibeToNrs.import_itemlist An error has been passed. %s" %e  )
       db_conn.rollback()    
     db_conn.close()
+    self.logger.info("GibeToNrs.import_itemlist Terminated, %d samples imported!" % sample)
+    return sample
+  
+  
+  
+  def run_itemlist(self,itemlist):  
+    self.logger.info("run_itemlist started on %d items"% len(itemlist))    
+    bulk_insert = {}
+    node_uid = self.n_uid
+    bulk_insert_row = []
+    bulk_insert_row.append(("nrs_environment_id", "nrs_node_id","nrs_datastream_id","sample_no","value_at","datetime_at","updated"  ))
+    sample=1      
+    i=0
+    sUpdated = time.strftime('%Y-%m-%d %H:%M:%S')
+    dsItems = self.get_datastream_for_lambda(self.nodeselected_id)
+    iRow = 0
+    for row in itemlist:
+      #self.logger.info("GibeToNrs on %s reads CSV sample number %d" % (self.csv_folder,sample) )
+      iRow = iRow + 1
+      cols = row.split('\t')
+      #self.logger.info("GibeToNrs on %s reads CSV sample number %d" % (self.csv_folder,sample) )
+      if len(cols) < len(dsItems) + 2:
+        self.logger.info("GibeToNrs.run_itemlist row number %d, there are %d measures against %d datastream....some measures were lost! " %(iRow, len(cols)-2,len(dsItems)))
+      elif len(cols) > len(dsItems) + 2:
+        self.logger.info("GibeToNrs.run_itemlist, too many measures (%d), skipping row number %d" % (len(cols),iRow))
+        continue
+      icol=0
+      isensor=1
+      ds_prefix="_%02d."
+      ds_prefix_no = 0
+      sAt=""
+      flast_value=0.0
+      for col in cols:
+        icol=icol+1
+        if icol==1:
+          # first col is date
+          sdate = "%s" % col
+        elif icol==2:
+          # time
+          stime = "%s" % col
+          if len(stime)==8:
+            stime = stime + ".000"
+          dt=datetime.strptime(sdate + " " +stime,"%d/%m/%Y %H:%M:%S.%f")
+          sAt = dt.strftime('%Y%m%d%H%M%S%f')           
+        elif icol > 2:
+          current_value = "%s" % col
+          current_value = current_value.strip()
+          current_value = current_value.replace(',','.')
+          fcurrent_value = float(current_value)
+          fcurrent_value = round(fcurrent_value,3)
+          dsCh = dsItems[icol-3]['ch']
+          isensor = isensor
+          dsLambda = dsItems[icol-3]['lambda']
+          dsRange = dsItems[icol-3]['range']
+          # todo: verificare se il criterio +-2 va bene          
+          if fcurrent_value < dsLambda + dsRange and fcurrent_value > dsLambda - dsRange:
+            nrs_datastream_id = dsItems[icol-3]['id']
+          else:
+            self.logger.info("GibeToNrs.run_itemlist row number %d, colummn number %d; there is a value (%f) does not match with lambda (%f) of datastream %s " %(iRow, icol,fcurrent_value, dsLambda, dsItems[icol-3]['title']))
+            continue
+          bulk_insert_row.append((self.nrs_environment_id, self.nodeselected_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
+          i=i+1
+          isensor = isensor + 1
+      sample=sample+1
+    self.logger.info("GibeToNrs.run_itemlist, bulk_insert_row is ready with %d samples and %d rows" % (sample-1,i))
+    if not os.path.exists(self.csv_folder+"/tmp"):
+      os.mkdir(self.csv_folder+"/tmp")
+    csv_file = time.strftime('%Y%m%d%H%M%S')
+    with open(self.csv_folder+"/tmp/" + csv_file + ".csv", 'wb') as importcsvfile:
+      writer = csv.writer(importcsvfile,delimiter='|')
+      writer.writerows(bulk_insert_row)
+    self.logger.info("File %s written" % (self.csv_folder+"/tmp/" + csv_file + ".csv"))	    
+    with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
+      dr = csv.DictReader(infile, delimiter='|')
+      to_db = [(di['nrs_environment_id'], di['nrs_node_id'], di['nrs_datastream_id'], di['sample_no'], di['value_at'], di['datetime_at'], di['updated']) for di in dr]
+    with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
+      dr = csv.DictReader(infile, delimiter='|')        
+      del_db = [(dd['nrs_datastream_id'], dd['datetime_at']) for dd in dr]
+    db_conn = sqlite3.connect(settings.database)
+    # db_conn = MySQLdb.connect(host=settings.hostname, port=settings.portnumber, user=settings.username,passwd=settings.password,db=settings.database)
+    db_cur = db_conn.cursor()
+    dd_dict = {}
+    for delitem in del_db:
+      if delitem[0] not in dd_dict:
+        dd_dict[delitem[0]] = { 'min':delitem[1] ,'max': delitem[1]}
+      else:
+        if dd_dict[delitem[0]]['min'] > delitem[1]:
+          dd_dict[delitem[0]]['min'] = delitem[1]
+        if dd_dict[delitem[0]]['max'] < delitem[1]:
+          dd_dict[delitem[0]]['max'] = delitem[1]
+    sTmpWhere = "1<>1"
+    for key, value in dd_dict.items():
+      sTmpWhere = sTmpWhere + " OR ( nrs_datastream_id=%s AND datetime_at >= '%s' AND datetime_at <= '%s' )" % (key,value['min'],value['max'])
+    sDeleteQuery = """DELETE FROM nrs_datapoint WHERE %s """ % sTmpWhere
+    self.logger.info("GibeToNrs.run_itemlist sDeleteQuery = %s"% sDeleteQuery)
+    try:
+      db_cur.execute(sDeleteQuery)
+      sInsertQuery = """INSERT INTO nrs_datapoint ( 
+                           nrs_environment_id, 
+                           nrs_node_id, 
+                           nrs_datastream_id, 
+                           sample_no, 
+                           value_at, 
+                           datetime_at, 
+                           updated
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?);"""
+      self.logger.info("GibeToNrs.run_itemlist sInsertQuery = %s"% sInsertQuery)
+      db_cur.executemany(sInsertQuery, to_db)
+      db_conn.commit()
+    except MySQLdb.Error, e:
+      self.logger.error("GibeToNrs.run_itemlist An error has been passed. %s" %e  )
+      db_conn.rollback()    
+    db_conn.close()
+    return sample-1
     #saved_folder = time.strftime('%Y%m%d%H%M')
     #if not os.path.exists(self.csv_folder+"/"+saved_folder):
     #  os.mkdir(self.csv_folder+"/"+saved_folder)
@@ -144,129 +251,152 @@ class GibeToNrs():
     #  db_conn.rollback()    
     #db_conn.close()
   
-  
+
+  def get_datastream_for_lambda(self,node_id):
+    sSql = """SELECT id
+                ,title
+                ,lambda_value
+                ,ch
+                ,lambda_range
+                FROM 
+                nrs_datastream
+                WHERE 
+                nrs_node_id = %d
+                ORDER BY ch, lambda_value""" % node_id
+    db_conn = sqlite3.connect(settings.database)        
+    db_cur = db_conn.cursor()
+    retVal= db_cur.execute(sSql)
+    rows = retVal.fetchall()
+    dsItems = []
+    for row in rows:
+        dsData={'id':row[0],'title':row[1],'lambda':float(row[2]),'ch':int(row[3]),'range':float(row[4])}
+        dsItems.append(dsData)
+    return dsItems
+        
   
   def read_csv_folder(self):
-    if os.path.exists(self.csv_folder) == True:
-        for files in os.listdir(self.csv_folder):
-          if os.path.isdir(os.path.join(self.csv_folder,files)) == True:
-            continue
-          self.logger.info("GibeToNrs on %s founds file %s" % (self.csv_folder,files) )
-          sha256sum = self.sha256Checksum(self.csv_folder+"/"+files)
-          bulk_insert = {}
-          node_uid = self.n_uid
-          nrs_node_id = self.check_node_uid(self.nrs_environment_id, self.env_uid+node_uid)
-          bulk_insert_row = []
-          bulk_insert_row.append(("nrs_environment_id", "nrs_node_id","nrs_datastream_id","sample_no","value_at","datetime_at","updated"  ))
-          datastream_uids = {}
-          sample=1      
-          i=0
-          sUpdated = time.strftime('%Y-%m-%d %H:%M:%S')
-          with open(self.csv_folder+"/"+files, 'rb') as csvfile:
-            csv_reader = csv.reader(csvfile, delimiter='\t')  
-            for row in csv_reader:
-              #self.logger.info("GibeToNrs on %s reads CSV sample number %d" % (self.csv_folder,sample) )
-              icol=0
-              isensor=1
-              ds_prefix="_%02d."
-              ds_prefix_no = 0
-              sAt=""
-              flast_value=0.0
-              for col in row:
-                icol=icol+1
-                if icol==1:
-                  # first col is date
-                  sdate = "%s" % col
-                elif icol==2:
-                  # time
-                  stime = "%s" % col
-                  if len(stime)==8:
-                    stime = stime + ".000"
-                  dt=datetime.strptime(sdate + " " +stime,"%d/%m/%Y %H:%M:%S.%f")
-                  sAt = dt.strftime('%Y%m%d%H%M%S%f')           
-                elif icol > 2:
-                  current_value = "%s" % col
-                  current_value = current_value.replace(',','.')
-                  fcurrent_value = float(current_value)
-                  fcurrent_value = round(fcurrent_value,3)
-                  if flast_value >= fcurrent_value:
-                    ds_prefix_no = ds_prefix_no+1
-                    isensor = 1
-                  prefix = ds_prefix % ds_prefix_no
-                  sId = "%s-%d" % (prefix,isensor)
-                  if sId not in datastream_uids:
-                    nrs_datastream_id = self.check_datastream_uid(self.nrs_environment_id,nrs_node_id, fcurrent_value, isensor , prefix , node_uid)
-                    datastream_uids[sId]=nrs_datastream_id
-                  else:
-                    nrs_datastream_id = datastream_uids[sId]
-                  bulk_insert_row.append((self.nrs_environment_id, nrs_node_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
-                  i=i+1
-                  isensor = isensor + 1
-                  flast_value = fcurrent_value
-              sample=sample+1
-          self.logger.info("bulk_insert_row is ready with %d samples and %d rows" % (sample,i))
-          if not os.path.exists(self.csv_folder+"/tmp"):
-            os.mkdir(self.csv_folder+"/tmp")
-          csv_file = time.strftime('%Y%m%d%H%M%S')
-          with open(self.csv_folder+"/tmp/" + csv_file + ".csv", 'wb') as importcsvfile:
-            writer = csv.writer(importcsvfile,delimiter='|')
-            writer.writerows(bulk_insert_row)
-          self.logger.info("File %s written" % (self.csv_folder+"/tmp/" + csv_file + ".csv"))	    
-          with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
-            dr = csv.DictReader(infile, delimiter='|')
-            to_db = [(di['nrs_environment_id'], di['nrs_node_id'], di['nrs_datastream_id'], di['sample_no'], di['value_at'], di['datetime_at'], di['updated']) for di in dr]
-          with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
-            dr = csv.DictReader(infile, delimiter='|')        
-            del_db = [(dd['nrs_datastream_id'], dd['datetime_at']) for dd in dr]
-          db_conn = sqlite3.connect(settings.database)
-          # db_conn = MySQLdb.connect(host=settings.hostname, port=settings.portnumber, user=settings.username,passwd=settings.password,db=settings.database)
-          db_cur = db_conn.cursor()
-          dd_dict = {}
-          for delitem in del_db:
-            if delitem[0] not in dd_dict:
-              dd_dict[delitem[0]] = { 'min':delitem[1] ,'max': delitem[1]}
-            else:
-              if dd_dict[delitem[0]]['min'] > delitem[1]:
-                dd_dict[delitem[0]]['min'] = delitem[1]
-              if dd_dict[delitem[0]]['max'] < delitem[1]:
-                dd_dict[delitem[0]]['max'] = delitem[1]
-          sTmpWhere = "1<>1"
-          for key, value in dd_dict.items():
-            sTmpWhere = sTmpWhere + " OR ( nrs_datastream_id=%s AND datetime_at >= '%s' AND datetime_at <= '%s' )" % (key,value['min'],value['max'])
-          sDeleteQuery = """DELETE FROM nrs_datapoint WHERE %s """ % sTmpWhere
-          try:
-            db_cur.execute(sDeleteQuery)
-            sInsertQuery = """INSERT INTO nrs_datapoint ( 
-                                 nrs_environment_id, 
-                                 nrs_node_id, 
-                                 nrs_datastream_id, 
-                                 sample_no, 
-                                 value_at, 
-                                 datetime_at, 
-                                 updated
-                              ) VALUES (?, ?, ?, ?, ?, ?, ?);"""
-            db_cur.executemany(sInsertQuery, to_db)
-            db_conn.commit()
-          except MySQLdb.Error, e:
-            self.logger.error("An error has been passed. %s" %e  )
-            db_conn.rollback()    
-          db_conn.close()
-          saved_folder = time.strftime('%Y%m%d%H%M')
-          if not os.path.exists(self.csv_folder+"/"+saved_folder):
-            os.mkdir(self.csv_folder+"/"+saved_folder)
-          shutil.move(self.csv_folder+"/"+files,self.csv_folder+"/"+saved_folder)
-          self.logger.info("GibeToNrs on %s moved file %s into %s" % (self.csv_folder,files,saved_folder) )
-          db_conn = sqlite3.connect(settings.database)
-          # db_conn = MySQLdb.connect(host=settings.hostname, port=settings.portnumber, user=settings.username,passwd=settings.password,db=settings.database)
-          db_cur = db_conn.cursor()
-          sQuery = """INSERT INTO nrs_csv_client (folder,file_name,sha256sum,noitems,saved_folder) VALUES ('%s','%s','%s',%d,'%s')""" % (self.csv_folder,files,sha256sum,i,saved_folder)
-          try:
-            db_cur.execute(sQuery)
-            db_conn.commit()
-          except MySQLdb.Error, e:
-            self.logger.error("An error has been passed. %s" %e  )
-            db_conn.rollback()    
-          db_conn.close()
+    if os.path.exists(self.csv_folder) == True and os.path.isfile(self.import_file_path) == True:
+      self.logger.info("GibeToNrs.read_csv_folder on %s founds regular file %s" % (self.csv_folder,self.import_file_path) )
+      sha256sum = self.sha256Checksum(self.import_file_path)
+      bulk_insert = {}
+      node_uid = self.n_uid
+      bulk_insert_row = []
+      bulk_insert_row.append(("nrs_environment_id", "nrs_node_id","nrs_datastream_id","sample_no","value_at","datetime_at","updated"  ))
+      sample=1      
+      i=0
+      sUpdated = time.strftime('%Y-%m-%d %H:%M:%S')
+      dsItems = self.get_datastream_for_lambda(self.nodeselected_id)
+      with open(self.import_file_path, 'rb') as csvfile:
+        csv_reader = csv.reader(csvfile, delimiter='\t')  
+        iRow = 0
+        for row in csv_reader:
+          iRow = iRow + 1
+          #self.logger.info("GibeToNrs on %s reads CSV sample number %d" % (self.csv_folder,sample) )
+          if len(row) != len(dsItems) + 2:
+              self.logger.info("GibeToNrs.read_csv_folder row number %d, there are %d measures against %d datastream....something wrong " %(iRow, len(row)-2,len(dsItems)))
+              if len(row) > len(dsItems) + 2:
+                  self.logger.info("GibeToNrs.read_csv_folder, too many measures, skipping row number %d" % iRow)
+                  continue
+          icol=0
+          isensor=1
+          ds_prefix="_%02d."
+          ds_prefix_no = 0
+          sAt=""
+          for col in row:
+            icol=icol+1
+            if icol==1:
+              # first col is date
+              sdate = "%s" % col
+            elif icol==2:
+              # time
+              stime = "%s" % col
+              if len(stime)==8:
+                stime = stime + ".000"
+              dt=datetime.strptime(sdate + " " +stime,"%d/%m/%Y %H:%M:%S.%f")
+              sAt = dt.strftime('%Y%m%d%H%M%S%f')           
+            elif icol > 2:
+              current_value = "%s" % col
+              current_value = current_value.strip()
+              current_value = current_value.replace(',','.')
+              fcurrent_value = float(current_value)
+              fcurrent_value = round(fcurrent_value,3)
+              dsCh = dsItems[icol-3]['ch']
+              isensor = isensor
+              dsLambda = dsItems[icol-3]['lambda']
+              dsRange = dsItems[icol-3]['range']
+              # todo: verificare se il criterio +-2 va bene
+              if fcurrent_value < dsLambda + dsRange and fcurrent_value > dsLambda - dsRange:
+                  nrs_datastream_id = dsItems[icol-3]['id']
+              else:
+                  self.logger.info("GibeToNrs.read_csv_folder row number %d, colummn number %d; there is a value (%f) does not match with lambda (%f) of datastream %s " %(iRow, icol,fcurrent_value, dsLambda, dsItems[icol-3]['title']))
+                  continue
+              bulk_insert_row.append((self.nrs_environment_id, self.nodeselected_id,nrs_datastream_id,sample,current_value,sAt,sUpdated  ))
+              i=i+1
+              isensor = isensor + 1
+          sample=sample+1
+      self.logger.info("bulk_insert_row is ready with %d samples and %d rows" % (sample-1,i))
+      if not os.path.exists(self.csv_folder+"/tmp"):
+        os.mkdir(self.csv_folder+"/tmp")
+      csv_file = time.strftime('%Y%m%d%H%M%S')
+      with open(self.csv_folder+"/tmp/" + csv_file + ".csv", 'wb') as importcsvfile:
+        writer = csv.writer(importcsvfile,delimiter='|')
+        writer.writerows(bulk_insert_row)
+      self.logger.info("File %s written" % (self.csv_folder+"/tmp/" + csv_file + ".csv"))	    
+      with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
+        dr = csv.DictReader(infile, delimiter='|')
+        to_db = [(di['nrs_environment_id'], di['nrs_node_id'], di['nrs_datastream_id'], di['sample_no'], di['value_at'], di['datetime_at'], di['updated']) for di in dr]
+      with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
+        dr = csv.DictReader(infile, delimiter='|')        
+        del_db = [(dd['nrs_datastream_id'], dd['datetime_at']) for dd in dr]
+      db_conn = sqlite3.connect(settings.database)
+      # db_conn = MySQLdb.connect(host=settings.hostname, port=settings.portnumber, user=settings.username,passwd=settings.password,db=settings.database)
+      db_cur = db_conn.cursor()
+      dd_dict = {}
+      for delitem in del_db:
+        if delitem[0] not in dd_dict:
+          dd_dict[delitem[0]] = { 'min':delitem[1] ,'max': delitem[1]}
+        else:
+          if dd_dict[delitem[0]]['min'] > delitem[1]:
+            dd_dict[delitem[0]]['min'] = delitem[1]
+          if dd_dict[delitem[0]]['max'] < delitem[1]:
+            dd_dict[delitem[0]]['max'] = delitem[1]
+      sTmpWhere = "1<>1"
+      for key, value in dd_dict.items():
+        sTmpWhere = sTmpWhere + " OR ( nrs_datastream_id=%s AND datetime_at >= '%s' AND datetime_at <= '%s' )" % (key,value['min'],value['max'])
+      sDeleteQuery = """DELETE FROM nrs_datapoint WHERE %s """ % sTmpWhere
+      try:
+        db_cur.execute(sDeleteQuery)
+        sInsertQuery = """INSERT INTO nrs_datapoint ( 
+                             nrs_environment_id, 
+                             nrs_node_id, 
+                             nrs_datastream_id, 
+                             sample_no, 
+                             value_at, 
+                             datetime_at, 
+                             updated
+                          ) VALUES (?, ?, ?, ?, ?, ?, ?);"""
+        db_cur.executemany(sInsertQuery, to_db)
+        db_conn.commit()
+      except MySQLdb.Error, e:
+        self.logger.error("An error has been passed. %s" %e  )
+        db_conn.rollback()    
+      db_conn.close()
+      saved_folder = time.strftime('%Y%m%d%H%M')
+      if not os.path.exists(self.csv_folder+"/"+saved_folder):
+        os.mkdir(self.csv_folder+"/"+saved_folder)
+      shutil.move(self.import_file_path,self.csv_folder+"/"+saved_folder)
+      self.logger.info("GibeToNrs moved file %s into %s" % (self.import_file_path,saved_folder) )
+      db_conn = sqlite3.connect(settings.database)
+      # db_conn = MySQLdb.connect(host=settings.hostname, port=settings.portnumber, user=settings.username,passwd=settings.password,db=settings.database)
+      db_cur = db_conn.cursor()
+      sQuery = """INSERT INTO nrs_csv_client (folder,file_name,sha256sum,noitems,saved_folder) VALUES ('%s','%s','%s',%d,'%s')""" % (self.csv_folder,os.path.basename(self.import_file_path),sha256sum,i,saved_folder)
+      try:
+        db_cur.execute(sQuery)
+        db_conn.commit()
+      except MySQLdb.Error, e:
+        self.logger.error("An error has been passed. %s" %e  )
+        db_conn.rollback()    
+      db_conn.close()
 
 
   def check_env_uid(self):

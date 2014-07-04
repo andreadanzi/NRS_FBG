@@ -15,7 +15,7 @@ modules ={u'GibeToNrsWin32_new': [0, '', u'GibeToNrsWin32_new.py'],
  u'img_frame': [0, '', u'img_frame.py'],
  u'nrs_frame': [1, 'Main frame of Application', u'nrs_frame.py'],
  u'nrs_message': [0, '', u'nrs_message.py'],
- u'settings': [0, '', u'settings.py']}
+ u'settings': [0, '', u'settings.conf']}
 
 class BoaApp(wx.App):
     def OnInit(self):

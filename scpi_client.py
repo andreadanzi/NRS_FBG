@@ -1,5 +1,6 @@
 import socket
 import sys
+import time
 
 def alert(msg):
     print >>sys.stderr, msg
@@ -32,6 +33,7 @@ class SCPICli():
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket.connect((self.host, self.port))
+            time.sleep(0.5)
             return True
         except Exception, e:
             alert('something\'s wrong with %s:%d. Exception type is %s' % (self.host, self.port, `e`))
@@ -39,8 +41,10 @@ class SCPICli():
         
     def connect2read(self):
         self.socket2read = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time.sleep(1)
         try:
             self.socket2read.connect((self.host, self.port2read)) 
+            time.sleep(1)
             return True
         except Exception, e:
             alert('something\'s wrong with %s:%d. Exception type is %s' % (self.host, self.port2read, `e`))
@@ -62,41 +66,57 @@ class SCPICli():
         
     def recvData(self):
         retMsg = ''
+        bytes_recd = 0
+        chunks = []
         try:
             data = self.socket.recv(1024)
-            retMsg = data
+            if data == '':
+                raise RuntimeError("recvData socket connection broken")
+            bytes_recd = bytes_recd + len(data)
+            chunks.append(data)
             while len(data) > 0:
               data = self.socket.recv(1024)
-              retMsg = retMsg + data
-            return retMsg
+              bytes_recd = bytes_recd + len(data)
+              chunks.append(data)
+            return retMsg.join(chunks)
         except socket.timeout:
-            return retMsg
+            return retMsg.join(chunks)
     
     def recv2readData(self):
         retMsg = ''
+        bytes_recd = 0
+        chunks = []
         try:
             data = self.socket2read.recv(1024)
-            retMsg = data
+            if data == '':
+                data = data
+            bytes_recd = bytes_recd + len(data)
+            chunks.append(data)
             while len(data) > 0:
               data = self.socket2read.recv(1024)
-              retMsg = retMsg + data
-            return retMsg
+              bytes_recd = bytes_recd + len(data)
+              chunks.append(data)
+            return retMsg.join(chunks)
         except socket.timeout:
-            return retMsg
+            return retMsg.join(chunks)
         
     def recv2readDataMax(self,maxLen=1000):
         retMsg = ''
+        bytes_recd = 0
+        chunks = []
         try:
             data = self.socket2read.recv(1024)
-            retMsg = data
-            while len(data) > 0:
+            if data == '':
+                raise RuntimeError("recv2readDataMax socket2read connection broken")
+            bytes_recd = bytes_recd + len(data)
+            chunks.append(data)
+            while bytes_recd < maxLen:
               data = self.socket2read.recv(1024)
-              retMsg = retMsg + data
-              if len(retMsg) > maxLen:
-                  break
-            return retMsg
+              bytes_recd = bytes_recd + len(data)
+              chunks.append(data)
+            return retMsg.join(chunks)
         except socket.timeout:
-            return retMsg
+            return retMsg.join(chunks)
     
     def getIDEN(self):
         returnVal = None

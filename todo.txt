@@ -14,10 +14,11 @@ sws 18/06/2014
 -cALCOLO DELLA MEDIA UTILIZZANDO LA FORMULA OK
 -SELEZIONE MULTIPLA DEI DATASTREAM PER BUTTARLI SULLA SEZIONE OK
 - Gestire i file immagine (nrs_datastream_picture) indipendentemente da nodo/centralina, invece che su C:\ tramite file di configurazione OK
-- Togliere le vecchie centraline
-- Verificare impostazione indirizzo IP
-- Testare datapoints generati random con sezioni parziali in modo da vedere cosa vien fuori sulle sezioni verticali
-- Errori su misure, vedi minuta del GAbriele
+- Togliere le vecchie centraline ok
+- Verificare impostazione indirizzo IP ok
+- Testare datapoints generati random con sezioni parziali in modo da vedere cosa vien fuori sulle sezioni verticali OK
+- Bisogna inserire un parametro nel datastream che mi dice quando la lettura è fuori range NB
+- Errori su misure, vedi minuta del GAbriele ok
 - Errore su chiusura
 
 GIBE3TT_00.01567.972
