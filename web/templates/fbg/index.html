@@ -1,0 +1,136 @@
+{% extends "fbg/base.html" %}
+{% block head %}
+	{{ form.media }}
+	
+	<script type="text/javascript">
+		$(document).ready(function(){
+		
+			//Blur Links (Prevents Outline)
+			$('a').click(function() {
+        		this.blur();
+        		});
+		
+			//Hide all item descriptions in the info box
+			$("#infobox > div").css("display", "none");
+		
+			/*Call in the info box background: url("interpolation_linear_H665_20121105.png") repeat scroll 0 0 transparent;
+			$(".more a").click(function(){
+				$("#infobox").animate({bottom: '0px' }, 300);
+				$("#fade_bg").fadeIn();
+				return false;
+			});*/
+			
+			//Call in the info box
+			{% for pict in picture_list %}			
+			$("#dam_section_{{pict.id}}.more{{pict.spandir}} div").click(function(){
+				$("#infobox > img").attr('src','/static/images/{{pict.filename}}');
+				$("#infobox > img").attr('width','800');
+				$("#infobox").animate({bottom: '20px' }, 300);
+				$("#fade_bg").fadeIn();
+				return false;
+			});
+			if( '{{pict.spandir}}'=='v' )
+			    $('#dam_section_{{pict.id}}.morev div').html($('#dam_section_{{pict.id}}.morev div').html().split('').join('<br/>'));
+			
+			
+			{% endfor %}
+			//Expand more info button on hover width height
+			$(".morev").hover(function(){
+				$(this).stop().animate({height: '300px' }, 200).css({'z-index' : '10'}); //Change the width increase caption size
+			}, function () {
+				$(this).stop().animate({height: '60px' }, 200).css({'z-index' : '1'});
+			});
+			/*
+			//Expand more info button on hover width height
+			$(".moreh").hover(function(){
+				$(this).stop().animate({width: '225px' }, 200).css({'z-index' : '10'}); //Change the width increase caption size
+			}, function () {
+				$(this).stop().animate({width: '60px' }, 200).css({'z-index' : '1'});
+      			});*/
+      		
+		    {% for pict in picture_list %}
+      		//Show description for selected item
+      		$("#dam_section_{{pict.id}} a").click(function(){
+				$("#dam_section_{{pict.id}}").show();
+			});
+			{% endfor %}
+						
+			//Remove background, info box and hide all descriptions
+			$("#fade_bg, .close").click(function(){
+				$("#fade_bg").fadeOut();
+				$("#infobox").animate({bottom: '-600px' }, 300, function() {
+					$("#infobox > div").css("display", "none");
+				});
+				return false;
+			});
+		
+		}); 
+	</script>
+{% endblock %}
+
+{% block header %}
+<H2>SWS Engineering -  FBG Monitor</H2>
+<div class="form-region">
+
+</div>
+<div class="form-region">
+	<form action="/fbg/" method="post">{% csrf_token %}
+
+	{% for field in form %}
+			<div class="fieldWrapper">
+				{{ field.errors }}
+				{{ field.label_tag }}: {{ field }}
+			</div>
+	{% endfor %}
+    <br/>
+	<div class="fieldSubmit">
+		<input type="submit" value="invia" />
+	</div>
+	</form>
+</div>
+<div class="form-region">
+
+</div>
+{% endblock %}
+{% block block-9 %}									
+	<!-- <H2>GIBE III</H2> -->
+{% endblock %}
+
+{% block block-10 %}
+
+	<div class="download-teaser">
+		<div id="dam">
+		    {% for pict in picture_list %}
+			<div id="dam_section_{{pict.id}}" class="more{{pict.spandir}}" title="{{pict.description}}" style="left: {{pict.px}}px;top: {{pict.py}}px;">
+				{% if pict.spandir == "h" %}
+				<div title="{{pict.title}}" >&nbsp;&nbsp;<br/>&nbsp;&nbsp;<br/>&nbsp;&nbsp;</div>
+				{% else %}
+				<div title="{{pict.title}}" >             </div>
+				{% endif %}
+				<span>&nbsp;</span>
+			</div>
+			{% endfor %}
+			<!-- Info Boxes -->
+			<div id="infobox">
+				<span class="close"><a href="#"><img src="/static/images/close.png"/></a></span>
+				<!-- <br/> -->
+				<img src="" alt=""/>
+				{% for pict in picture_list %}
+				<div id="dam_section_{{pict.id}}_info">
+					 <div id="dam_section_{{pict.id}}_chart_div" class="chart-div" >
+					{% if pict.id in data_dict %}
+                                          <p class="ok">{{pict.id}}</p>
+					{% endif %}
+					 </div>
+				</div>
+				{% endfor %}
+			</div>
+			<!-- Dimmed Background -->
+			<div id="fade_bg">&nbsp;</div>
+			
+			
+		</div>
+	</div>
+{% endblock %}
+{% block footer %}
+{% endblock %}

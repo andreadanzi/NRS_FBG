@@ -1,0 +1,89 @@
+<html lang="en" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:og="http://ogp.me/ns#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:dc="http://purl.org/dc/terms/" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="HTML+RDFa 1.1" dir="ltr" class="js">
+
+<head profile="http://www.w3.org/1999/xhtml/vocab">
+
+	<title>GIBE | FBG</title>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+	<link rel="stylesheet" type="text/css" href="/static/admin/css/base.css" />
+	<link rel="stylesheet" type="text/css" href="/static/admin/css/dashboard.css" />
+	<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz' rel='stylesheet' type='text/css'>
+	<script type="text/javascript">window.__admin_media_prefix__ = "/static/admin/";</script>
+	
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="/admin/jsi18n/"></script>
+	<script type="text/javascript" src="/static/admin/js/core.js"></script>
+	<script type="text/javascript" src="/static/admin/js/admin/RelatedObjectLookups.js"></script>
+	<script type="text/javascript" src="/static/admin/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>	
+	<script type="text/javascript" src="/static/admin/js/actions.js"></script>
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+    <!-- django block head -->	
+	{% block head %}
+	{% endblock %}
+    <!-- django endblock head -->	
+</head>
+<body class="html">
+	<div id="page" class="page clearfix">
+		<header class="section section-header" id="section-header">
+			<div class="zone-wrapper zone-header-wrapper clearfix" id="zone-header-wrapper">  
+				<div class="zone zone-header clearfix container-12" id="zone-header">
+					<div id="region-header-first" class="grid-12 region region-header-first">
+						<div class="region-inner region-header-first-inner">
+							<div id="block-block-1" class="block block-block header-blue block-1 block-block-1 odd block-without-title">
+								<div class="block-inner clearfix">
+									<div class="content clearfix">
+									{% block header %}
+									{% endblock %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<section class="section section-content" id="section-content">
+			<div class="zone-wrapper zone-fbg-wrapper clearfix" id="zone-fbg-wrapper">  
+				<div class="zone zone-fbg clearfix container-12" id="zone-fbg">
+					<div id="region-fbg-third" class="grid-12 region region-fbg-third">
+						<div class="region-inner region-fbg-third-inner">
+							<div id="block-block-9" class="block block-block header-blue block-9 block-block-9 odd block-without-title">
+								<div class="block-inner clearfix">
+									<div class="content clearfix">
+									{% block block-9 %}									
+										<p>FBG</p>
+									{% endblock %}
+									</div>
+								</div>
+							</div>
+							<div id="block-block-10" class="block block-block column-intro block-10 block-block-10 odd block-without-title">
+								<div class="block-inner clearfix">
+									<div class="content clearfix">	
+									{% block block-10 %}
+										
+									{% endblock %}
+									</div>
+								</div>
+							</div>
+							<div id="block-block-11" class="block block-block download-link block-11 block-block-11 odd block-without-title">
+								<div class="block-inner clearfix">
+									<div class="content clearfix">		
+									{% block block-11 %}
+										<h3><a href="#" target="_blank">Download <em>something</em></a></h3>
+									{% endblock %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<footer class="section section-footer" id="section-footer">
+		{% block footer %}
+		{% endblock %}
+		</footer>
+	</div>
+</body>	
+</html>

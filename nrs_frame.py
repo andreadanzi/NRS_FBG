@@ -116,9 +116,9 @@ class Frame1(wx.Frame):
     def _init_coll_notebook1_Pages(self, parent):
         # generated method, don't edit
 
-        parent.AddPage(imageId=0, page=self.panelEnv, select=True,
+        parent.AddPage(imageId=0, page=self.panelEnv, select=False,
               text=u'Environment')
-        parent.AddPage(imageId=1, page=self.panelNode, select=False,
+        parent.AddPage(imageId=1, page=self.panelNode, select=True,
               text=u'Node')
         parent.AddPage(imageId=2, page=self.panelDatastream, select=False,
               text=u'Datastream')

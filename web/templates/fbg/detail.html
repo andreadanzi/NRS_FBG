@@ -1,0 +1,18 @@
+{% extends "fbg/base.html" %}
+
+{% block block-9 %}									
+	<p>FBG</p>
+{% endblock %}
+
+{% block block-10 %}
+	<div class="download-teaser">
+		<h3>{{env.title}}</h3>
+		<p>Elenco dei nodi associati</p>
+		<ul>
+		{% for node in env.nrsnode_set.all %}
+			<li><a href="/GIBE/fbg/node/{{ node.id }}/">{{ node.title }}</a></li>
+		{% endfor %}
+		</ul>
+		<p>Lore IPSUM dolor sit... <a href="#" target="_blank"><strong>amet</strong></a>...</p>
+	</div>
+{% endblock %}

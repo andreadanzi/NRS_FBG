@@ -835,7 +835,12 @@ class imgAssociation(wx.Dialog):
             #mysensors = np.append(mysensors,[[row[1],600-row[2]]],axis=0)
             myvalues = np.append(myvalues,[retVal],axis=0)
         sMethod = self.chcInterpolation.GetStringSelection()
-        m_interp_cubic = griddata(mysensors, myvalues, (gx, gy), method=sMethod)
+        try:
+            m_interp_cubic = griddata(mysensors, myvalues, (gx, gy), method=sMethod)
+        except Exception, e:
+            self.logger.error("Exception on griddata: %s" %  str(e))
+            self.SetCursor(mycur)
+            return
         fig = plt.figure(dpi=200,facecolor='none')
         plt.plot(mysensors[:,0], mysensors[:,1], 'rD', ms=2)
         imgDam = mpimg.imread(self.imgFilePath)

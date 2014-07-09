@@ -41,6 +41,7 @@ class GibeToNrs():
     sUpdated = time.strftime('%Y-%m-%d %H:%M:%S')
     dsItems = self.get_datastream_for_lambda(self.nodeselected_id)
     sample = 0
+    foundQty = 1
     for row in itemlist:
       sample = sample + 1
       cols = row.split('\t')
@@ -55,20 +56,24 @@ class GibeToNrs():
         stime = stime + ".000"
       dt=datetime.strptime(sdate + " " +stime,"%d/%m/%Y %H:%M:%S.%f")
       sAt = dt.strftime('%Y%m%d%H%M%S%f')
-      iProg = 1   
+      iProg = 2   
       for dsItem in dsItems:
-        iProg = iProg + 1
         dsLambda = dsItem['lambda']
         dsRange = dsItem['range']
         dsCh = dsItem['ch']
         nrs_datastream_id = dsItem['id']
         flast_value = 0.0
         bFound = False
+        if iProg == len(cols):
+            self.logger.info("GibeToNrs.import_itemlist, measures number (%d) out of range , skipping ds %d! " % (len(cols),nrs_datastream_id) )
+            continue;
         current_value = "%s" % cols[iProg]
         current_value = current_value.strip().replace(',','.')
         fcurrent_value = round(float(current_value),3)
         if fcurrent_value < dsLambda + dsRange and fcurrent_value > dsLambda - dsRange:
           bFound = True
+          iProg = iProg + 1
+          foundQty = foundQty + 1
         else:
           current_value = "-998"
           self.logger.error("GibeToNrs.import_itemlist, Datastream %d not found for sample %d; current value is %f and lambda should be %f within a range of %f" % (nrs_datastream_id,sample,fcurrent_value,dsLambda,dsRange))
@@ -121,8 +126,8 @@ class GibeToNrs():
       self.logger.error("GibeToNrs.import_itemlist An error has been passed. %s" %e  )
       db_conn.rollback()    
     db_conn.close()
-    self.logger.info("GibeToNrs.import_itemlist Terminated, %d samples imported!" % sample)
-    return sample
+    self.logger.info("GibeToNrs.import_itemlist Terminated, %d samples processed and %d imported!" % (sample,foundQty))
+    return foundQty
   
   
   
