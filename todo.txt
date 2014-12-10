@@ -22,3 +22,32 @@ sws 18/06/2014
 - Errore su chiusura
 
 GIBE3TT_00.01567.972
+
+sws 10/07/2014
+sws@2040710 se salto il ds metto -998
+sws@2040710 analizzare la riga per determinare il numero di canali e raggrupparli, poi andare sui ds
+per ogni ds cercare in maniera crescente la lunghezza d'onda corrispondente, nel caso non ci osero match passare la palla al ds successivo che riparte dall'i-esima posizione
+sws@2040710 impostare thershold query :ACQU:CONF:THRE:CHAN:2?  set :ACQU:CONF:THRE:CHAN:2:20
+per capire quanti picchi(quanti sensori) ci sono per ogni canale bisogna far partire in acqu la centralina 
+
+:ACQU:STAR
+poi 
+verificare il picco sul singolo canale :ACQU:POWE:CHAN:6? :ACK:-14.743,-13.770
+e la corrispondente lunghezza d'onda :ACQU:WAVE:CHAN:6? :ACK:1554.4363,1567.8285
+nel caso anche di tutti i canali
+:ACQU:POWE:CHAN:A? (:ACK:::::::-14.7452,-13.7888:)
+:ACQU:WAVE:CHAN:A? :ACK:::::::1554.4363,1567.8269:
+in questo modo si può discriminare canale per canale se ci sono delle misure da scartare (sempre relativo al thershold)
+per conoscere threshold :ACQU:CONF:THRE:CHAN:6? :ACK:10.0
+:ACQU:STOP
+
+in questo modo 
+
+
+per verificare se ci sono misure  multiple  che fanno riferimneto allo stesso DS (cadono entrambe nel range) allora bisogna applicare la formula e verificare che 
+le temp non sidiscostano più o meno 2 gradi, in un caso prendere la minore nell'altro caso buttare via tutto
+
+per verificare se dei canali sono saltati, e solo quando si sa che i canali sono di meno,il DS corrente, che dovrebbe corrispondere al canale saltato, 
+inizierà a trovare delle discordanze (fuori range ) perchè le misure fanno riferimento al canale successivo, e quindi si salta in blocco i DS del canale 
+corrente e si parte dai DS del canale successivo
+

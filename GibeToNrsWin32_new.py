@@ -42,6 +42,7 @@ class GibeToNrs():
     dsItems = self.get_datastream_for_lambda(self.nodeselected_id)
     sample = 0
     foundQty = 1
+    skipped_rows=[]
     for row in itemlist:
       sample = sample + 1
       cols = row.split('\t')
@@ -49,6 +50,7 @@ class GibeToNrs():
         self.logger.info("GibeToNrs.import_itemlist row number %d, there are %d measures against %d datastream....some measures were lost! " %(sample, len(cols)-2,len(dsItems)))
       elif len(cols) > len(dsItems) + 2:
         self.logger.error("GibeToNrs.import_itemlist, too many measures (%d), skipping row number %d" % (len(cols),sample))
+        skipped_rows.append(row)
         continue
       sdate = "%s" % cols[0] ### first item is the date
       stime = "%s" % cols[1] ### second item is the time
@@ -91,6 +93,12 @@ class GibeToNrs():
     with open(self.csv_folder+"/tmp/" + csv_file + ".csv",'rb') as infile:
       dr = csv.DictReader(infile, delimiter='|')        
       del_db = [(dd['nrs_datastream_id'], dd['datetime_at']) for dd in dr]
+    #20140710
+    csv_file = time.strftime('%Y%m%d%H%M%S')
+    sFilePath = os.path.join( self.csv_folder,  "skipped_rows_%s.csv" % csv_file )
+    f = file(sFilePath, 'w')
+    f.writelines(skipped_rows)
+    f.close()
     db_conn = sqlite3.connect(settings.database)
     # db_conn = MySQLdb.connect(host=settings.hostname, port=settings.portnumber, user=settings.username,passwd=settings.password,db=settings.database)
     db_cur = db_conn.cursor()
